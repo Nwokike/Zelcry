@@ -3,8 +3,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0a0a0a">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#FFFFFF">
+    <meta name="description" content="Zelcry - AI-powered sustainable crypto advisor. Track your portfolio, discover eco-friendly cryptocurrencies, and make informed investment decisions.">
     <title>{% block title %}Zelcry - Sustainable Crypto Advisor{% endblock %}</title>
     {% load pwa %}
     {% progressive_web_app_meta %}
@@ -12,11 +13,42 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <div class="container">
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                {% if request.path != '/' and user.is_authenticated %}
+                <button class="back-button" aria-label="Go back">
+                    ←
+                </button>
+                {% endif %}
+                <a href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'index' %}{% endif %}" class="logo">
+                    Zelcry
+                </a>
+            </div>
+
+            <div class="header-right">
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                    🌙
+                </button>
+
+                {% if user.is_authenticated %}
+                <div class="user-badge">
+                    <span>{{ user.username }}</span>
+                    <span class="xp-badge">{{ user.profile.xp_points }} XP</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <div class="page-wrapper {% if not user.is_authenticated %}no-auth{% endif %}">
         {% if messages %}
-        <div class="messages">
+        <div class="container">
             {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            <div class="alert alert-{{ message.tags }}">
+                <span>{% if message.tags == 'success' %}✓{% elif message.tags == 'error' %}✗{% else %}ℹ{% endif %}</span>
+                <span>{{ message }}</span>
+            </div>
             {% endfor %}
         </div>
         {% endif %}
@@ -26,25 +58,26 @@
 
     {% if user.is_authenticated %}
     <nav class="bottom-nav">
-        <a href="{% url 'dashboard' %}" class="nav-item {% if request.path == '/dashboard/' %}active{% endif %}">
-            <span class="nav-icon">📊</span>
-            <span class="nav-label">Dashboard</span>
-        </a>
-        <a href="{% url 'ai_advisor' %}" class="nav-item {% if request.path == '/ai-advisor/' %}active{% endif %}">
-            <span class="nav-icon">🤖</span>
-            <span class="nav-label">AI Advisor</span>
-        </a>
-        <a href="{% url 'logout' %}" class="nav-item">
-            <span class="nav-icon">🚪</span>
-            <span class="nav-label">Logout</span>
-        </a>
+        <div class="bottom-nav-content">
+            <a href="{% url 'dashboard' %}" class="nav-item {% if 'dashboard' in request.path %}active{% endif %}">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Portfolio</span>
+            </a>
+            <a href="{% url 'index' %}" class="nav-item {% if request.path == '/' %}active{% endif %}">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Home</span>
+            </a>
+            <a href="{% url 'ai_advisor' %}" class="nav-item {% if 'ai-advisor' in request.path %}active{% endif %}">
+                <span class="nav-icon">🤖</span>
+                <span class="nav-label">AI Advisor</span>
+            </a>
+            <a href="{% url 'logout' %}" class="nav-item">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-label">Logout</span>
+            </a>
+        </div>
     </nav>
     {% endif %}
-
-    <footer class="footer">
-        <!-- AdSense Placeholder -->
-        <p>&copy; 2025 Zelcry. Sustainable Crypto for All.</p>
-    </footer>
 
     <script src="{% static 'js/main.js' %}"></script>
     {% block extra_js %}{% endblock %}
