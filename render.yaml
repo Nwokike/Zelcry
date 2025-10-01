@@ -2,6 +2,6 @@ services:
   - type: web
     name: zelcry
     env: python
-    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput"
-    startCommand: "gunicorn zelcry.wsgi"
-    postDeployCommand: "python manage.py migrate"
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: gunicorn zelcry.wsgi:application
+    postDeployCommand: python manage.py migrate
