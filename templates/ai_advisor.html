@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Advisor - Zelcry{% endblock %}
+
+{% block content %}
+<div class="ai-advisor">
+    <div class="advisor-header" style="text-align: center; padding: 20px; background: linear-gradient(135deg, #1a1a1a, #2a2a2a); border-radius: 12px; margin-bottom: 20px; border: 1px solid #00d4ff;">
+        <h1>🤖 Beacon - Your AI Crypto Advisor</h1>
+        <p style="color: #00d4ff; font-size: 1.1rem; margin: 10px 0;">Powered by Advanced Analysis & Market Intelligence</p>
+        <p style="color: #999; font-size: 0.95rem;">Ask me anything about crypto! I analyze your portfolio, risk tolerance, and market trends to give you personalized advice.</p>
+        <div style="display: flex; justify-content: center; gap: 15px; margin-top: 15px; flex-wrap: wrap;">
+            <span class="coin-badge" style="background: #00d4ff40; color: #00d4ff; border: 1px solid #00d4ff;">💼 Portfolio: {{ portfolio_count }} coins</span>
+            <span class="coin-badge" style="background: #00ff8840; color: #00ff88; border: 1px solid #00ff88;">🎯 Risk: {{ risk_tolerance }}</span>
+            <span class="coin-badge" style="background: #ffa50040; color: #ffa500; border: 1px solid #ffa500;">⚡ XP: {{ user.profile.xp_points }}</span>
+        </div>
+    </div>
+
+    <div class="chat-container" id="chatContainer" style="min-height: 400px;">
+        <div class="chat-message bot-message" style="animation: slideIn 0.5s;">
+            <strong style="color: #00d4ff;">🤖 Beacon AI</strong>
+            <p>Hello {{ user.username }}! I'm your AI-powered crypto advisor. I can help you with:</p>
+            <div style="margin: 15px 0; line-height: 1.8;">
+                <p>✅ <strong>Portfolio Analysis</strong> - Review your holdings and diversification</p>
+                <p>✅ <strong>Personalized Recommendations</strong> - Based on your {{ risk_tolerance }} risk tolerance</p>
+                <p>✅ <strong>Sustainability Guidance</strong> - Find eco-friendly cryptocurrencies</p>
+                <p>✅ <strong>Market Insights</strong> - Track trends, gainers, and losers</p>
+                <p>✅ <strong>Education</strong> - Learn about any cryptocurrency</p>
+                <p>✅ <strong>Strategy Advice</strong> - Diversification and risk management</p>
+            </div>
+            <p class="suggestions" style="background: #0a0a0a; padding: 10px; border-radius: 8px; margin-top: 15px;">
+                <strong>Try asking:</strong><br>
+                💬 "Analyze my portfolio"<br>
+                💬 "What's the most sustainable coin?"<br>
+                💬 "Recommend coins for my risk level"<br>
+                💬 "What's trending today?"<br>
+                💬 "Tell me about Ethereum"<br>
+                💬 "How should I diversify?"
+            </p>
+        </div>
+    </div>
+
+    <div class="chat-input-wrapper">
+        <form id="chatForm" class="chat-form">
+            {% csrf_token %}
+            <input type="text" id="userInput" placeholder="💬 Ask Beacon about crypto..." autocomplete="off" required>
+            <button type="submit" class="btn btn-primary" id="sendBtn">
+                <span id="btnText">Send</span>
+                <span id="btnLoading" style="display: none;" class="loading"></span>
+            </button>
+        </form>
+        <p style="text-align: center; color: #666; font-size: 0.85rem; margin-top: 10px;">
+            💡 Every question earns you +2 XP! Keep learning and growing your crypto knowledge.
+        </p>
+    </div>
+</div>
+
+<style>
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chat-message {
+    animation: slideIn 0.4s ease-out;
+}
+
+.chat-input-wrapper {
+    position: sticky;
+    bottom: 80px;
+    background: #0a0a0a;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #333;
+}
+
+.chat-form input {
+    border: 2px solid #333;
+    transition: border-color 0.3s;
+}
+
+.chat-form input:focus {
+    border-color: #00d4ff;
+    outline: none;
+}
+
+.user-message {
+    background: linear-gradient(135deg, #00d4ff, #00ff88);
+    color: #0a0a0a;
+    margin-left: 15%;
+    animation: slideIn 0.3s;
+}
+
+.bot-message {
+    background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+    margin-right: 15%;
+    border: 1px solid #333;
+    animation: slideIn 0.5s;
+}
+
+.bot-message strong {
+    color: #00d4ff;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const chatForm = document.getElementById('chatForm');
+const userInput = document.getElementById('userInput');
+const chatContainer = document.getElementById('chatContainer');
+const sendBtn = document.getElementById('sendBtn');
+const btnText = document.getElementById('btnText');
+const btnLoading = document.getElementById('btnLoading');
+
+chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const message = userInput.value.trim();
+    if (!message) return;
+
+    btnText.style.display = 'none';
+    btnLoading.style.display = 'inline-block';
+    sendBtn.disabled = true;
+
+    addMessage(message, 'user');
+    userInput.value = '';
+
+    addMessage('<div class="loading"></div> Beacon is thinking...', 'bot', true);
+
+    try {
+        const response = await fetch('{% url "ai_advisor_query" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ message: message })
+        });
+
+        const data = await response.json();
+        
+        const messages = chatContainer.querySelectorAll('.chat-message');
+        const lastMessage = messages[messages.length - 1];
+        if (lastMessage.textContent.includes('thinking')) {
+            lastMessage.remove();
+        }
+        
+        addMessage('<strong>🤖 Beacon AI</strong><br>' + data.response.replace(/\n/g, '<br>'), 'bot');
+    } catch (error) {
+        const messages = chatContainer.querySelectorAll('.chat-message');
+        const lastMessage = messages[messages.length - 1];
+        if (lastMessage.textContent.includes('thinking')) {
+            lastMessage.remove();
+        }
+        addMessage('<strong>🤖 Beacon AI</strong><br>Sorry, I encountered an error. Please try again! 💫', 'bot');
+    } finally {
+        btnText.style.display = 'inline';
+        btnLoading.style.display = 'none';
+        sendBtn.disabled = false;
+        userInput.focus();
+    }
+});
+
+function addMessage(text, sender, isTemporary = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${sender}-message`;
+    messageDiv.innerHTML = `<p>${text}</p>`;
+    if (isTemporary) {
+        messageDiv.classList.add('temporary');
+    }
+    chatContainer.appendChild(messageDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+</script>
+{% endblock %}

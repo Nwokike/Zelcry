@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - Zelcry{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+        <h2>Create Your Account</h2>
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" name="username" id="username" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password1">Password</label>
+                <input type="password" name="password1" id="password1" required>
+            </div>
+            <div class="form-group">
+                <label for="password2">Confirm Password</label>
+                <input type="password" name="password2" id="password2" required>
+            </div>
+            <div class="form-group">
+                <label for="risk_tolerance">Risk Tolerance</label>
+                <select name="risk_tolerance" id="risk_tolerance">
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Sign Up</button>
+        </form>
+        <p class="auth-link">Already have an account? <a href="{% url 'login' %}">Login</a></p>
+    </div>
+</div>
+{% endblock %}

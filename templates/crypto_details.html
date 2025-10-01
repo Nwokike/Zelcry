@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ crypto.name }} - Zelcry{% endblock %}
+
+{% block extra_css %}
+<style>
+.score-good { color: #00ff88; }
+.score-medium { color: #ffa500; }
+.score-bad { color: #ff4444; }
+.border-good { border-color: #00ff88; }
+.border-medium { border-color: #00d4ff; }
+.border-fair { border-color: #ffa500; }
+.border-bad { border-color: #ff4444; }
+.progress-good { background: linear-gradient(90deg, #00ff88, #00d4ff); }
+.progress-medium { background: linear-gradient(90deg, #ffa500, #ffdd00); }
+.progress-bad { background: linear-gradient(90deg, #ff4444, #ff8844); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="crypto-details">
+    <div class="details-header">
+        <div>
+            <h1>{{ crypto.name }} ({{ crypto.symbol|upper }})</h1>
+            <div style="display: flex; gap: 10px; margin: 15px 0; flex-wrap: wrap;">
+                {% if crypto.energy_score >= 7 %}
+                <span class="coin-badge badge-sustainable">🌱 Eco-Friendly</span>
+                {% endif %}
+                {% if crypto.governance_score >= 8 %}
+                <span class="coin-badge" style="background: #00d4ff40; color: #00d4ff; border: 1px solid #00d4ff;">🗳️ Strong Governance</span>
+                {% endif %}
+                {% if crypto.utility_score >= 8 %}
+                <span class="coin-badge" style="background: #ffa50040; color: #ffa500; border: 1px solid #ffa500;">⚡ High Utility</span>
+                {% endif %}
+                {% if crypto.get_impact_score >= 8 %}
+                <span class="coin-badge" style="background: #00ff8840; color: #00ff88; border: 1px solid #00ff88;">🌟 Top Rated</span>
+                {% endif %}
+            </div>
+        </div>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">← Back</a>
+    </div>
+
+    <div class="stats-grid" style="margin: 30px 0;">
+        <div class="stat-card">
+            <div class="stat-value">${{ current_price|floatformat:2 }}</div>
+            <div class="stat-label">Current Price</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value {% if price_change_24h >= 0 %}score-good{% else %}score-bad{% endif %}">
+                {% if price_change_24h >= 0 %}+{% endif %}{{ price_change_24h|floatformat:2 }}%
+            </div>
+            <div class="stat-label">24h Change</div>
+        </div>
+        {% if market_cap > 0 %}
+        <div class="stat-card">
+            <div class="stat-value" style="font-size: 1.5rem;">${{ market_cap|floatformat:0 }}</div>
+            <div class="stat-label">Market Cap</div>
+        </div>
+        {% endif %}
+        <div class="stat-card">
+            <div class="stat-value">{{ crypto.get_impact_score }}/10</div>
+            <div class="stat-label">Overall Impact Score</div>
+        </div>
+    </div>
+
+    <div class="price-chart" style="margin: 30px 0;">
+        <h2>📈 {{ crypto.name }} Price Chart (30 Days)</h2>
+        <canvas id="priceChart" width="400" height="200"></canvas>
+    </div>
+
+    {% if crypto.description %}
+    <div class="description" style="background: linear-gradient(135deg, #1a1a1a, #2a2a2a); padding: 30px; border-radius: 12px; margin: 30px 0; border: 1px solid #333;">
+        <h2>📚 About {{ crypto.name }}</h2>
+        <p style="font-size: 1.1rem; line-height: 1.8; color: #ccc;">{{ crypto.description }}</p>
+    </div>
+    {% endif %}
+
+    <div class="impact-breakdown" style="background: linear-gradient(135deg, #1a1a1a, #2a2a2a); padding: 30px; border-radius: 12px; margin: 30px 0; border: 1px solid #00d4ff;">
+        <h2>🌍 Sustainability Impact Analysis</h2>
+        <p style="color: #999; margin-bottom: 25px;">Understanding the environmental and social impact of {{ crypto.name }}</p>
+        
+        <div class="score-bars">
+            <div class="score-item">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <label style="font-size: 1.1rem; font-weight: 600;">⚡ Energy Efficiency</label>
+                    <span class="{% if crypto.energy_score >= 7 %}score-good{% elif crypto.energy_score >= 4 %}score-medium{% else %}score-bad{% endif %}" style="font-size: 1.3rem; font-weight: bold;">{{ crypto.energy_score }}/10</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill {% if crypto.energy_score >= 7 %}progress-good{% elif crypto.energy_score >= 4 %}progress-medium{% else %}progress-bad{% endif %}" style="width: {{ crypto.energy_score }}0%;"></div>
+                </div>
+                <p style="color: #ccc; font-size: 0.95rem; margin-top: 10px;">{{ energy_explanation }}</p>
+            </div>
+
+            <div class="score-item">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <label style="font-size: 1.1rem; font-weight: 600;">🗳️ Governance & Decentralization</label>
+                    <span class="{% if crypto.governance_score >= 7 %}score-good{% elif crypto.governance_score >= 4 %}score-medium{% else %}score-bad{% endif %}" style="font-size: 1.3rem; font-weight: bold;">{{ crypto.governance_score }}/10</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill {% if crypto.governance_score >= 7 %}progress-good{% elif crypto.governance_score >= 4 %}progress-medium{% else %}progress-bad{% endif %}" style="width: {{ crypto.governance_score }}0%;"></div>
+                </div>
+                <p style="color: #ccc; font-size: 0.95rem; margin-top: 10px;">{{ governance_explanation }}</p>
+            </div>
+
+            <div class="score-item">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <label style="font-size: 1.1rem; font-weight: 600;">🚀 Utility & Adoption</label>
+                    <span class="{% if crypto.utility_score >= 7 %}score-good{% elif crypto.utility_score >= 4 %}score-medium{% else %}score-bad{% endif %}" style="font-size: 1.3rem; font-weight: bold;">{{ crypto.utility_score }}/10</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill {% if crypto.utility_score >= 7 %}progress-good{% elif crypto.utility_score >= 4 %}progress-medium{% else %}progress-bad{% endif %}" style="width: {{ crypto.utility_score }}0%;"></div>
+                </div>
+                <p style="color: #ccc; font-size: 0.95rem; margin-top: 10px;">{{ utility_explanation }}</p>
+            </div>
+        </div>
+
+        <div class="{% if crypto.get_impact_score >= 8 %}border-good{% elif crypto.get_impact_score >= 6 %}border-medium{% elif crypto.get_impact_score >= 4 %}border-fair{% else %}border-bad{% endif %}" style="margin-top: 30px; padding: 20px; background: #0a0a0a; border-radius: 8px; border-width: 1px; border-style: solid;">
+            <h3 class="{% if crypto.get_impact_score >= 8 %}score-good{% elif crypto.get_impact_score >= 6 %}score-medium{% elif crypto.get_impact_score >= 4 %}score-medium{% else %}score-bad{% endif %}">
+                Overall Sustainability Rating: {{ crypto.get_impact_score }}/10
+            </h3>
+            {% if crypto.get_impact_score >= 8 %}
+                <p style="color: #00ff88; font-size: 1.1rem;">🌟 Excellent! This cryptocurrency excels in sustainability, governance, and utility. A top choice for responsible investors!</p>
+            {% elif crypto.get_impact_score >= 6 %}
+                <p style="color: #00d4ff; font-size: 1.1rem;">✨ Very Good! This is a solid sustainable choice with strong fundamentals across key metrics.</p>
+            {% elif crypto.get_impact_score >= 4 %}
+                <p style="color: #ffa500; font-size: 1.1rem;">⚠️ Moderate impact. Consider the trade-offs between utility and sustainability before investing.</p>
+            {% else %}
+                <p style="color: #ff4444; font-size: 1.1rem;">❌ Lower sustainability score. If you care about environmental impact, consider alternatives with higher scores.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="background: #1a1a1a; padding: 25px; border-radius: 12px; border: 1px solid #333; margin: 30px 0;">
+        <h3>💡 Investment Considerations</h3>
+        <ul style="line-height: 2; color: #ccc;">
+            <li><strong>Risk Level:</strong> {% if crypto.governance_score >= 7 and crypto.utility_score >= 7 %}Low to Medium{% elif crypto.utility_score >= 5 %}Medium{% else %}Medium to High{% endif %}</li>
+            <li><strong>Best For:</strong> {% if crypto.energy_score >= 7 %}Eco-conscious investors{% elif crypto.governance_score >= 7 %}Governance-focused investors{% elif crypto.utility_score >= 8 %}Utility and adoption seekers{% else %}Speculative investors{% endif %}</li>
+            <li><strong>Time Horizon:</strong> {% if crypto.governance_score >= 7 %}Long-term hold{% elif crypto.utility_score >= 7 %}Medium to long-term{% else %}Short to medium-term{% endif %}</li>
+            <li><strong>Diversification:</strong> {% if crypto.get_impact_score >= 7 %}Core portfolio holding{% else %}Speculative allocation (5-10%){% endif %}</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const chartData = {{ chart_data|safe }};
+
+const ctx = document.getElementById('priceChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: chartData.labels,
+        datasets: [{
+            label: '{{ crypto.name }} Price (USD)',
+            data: chartData.prices,
+            borderColor: '#00d4ff',
+            backgroundColor: 'rgba(0, 212, 255, 0.1)',
+            tension: 0.4,
+            fill: true,
+            pointRadius: 4,
+            pointHoverRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                labels: { color: '#fff', font: { size: 14 } }
+            },
+            tooltip: {
+                backgroundColor: '#1a1a1a',
+                titleColor: '#00d4ff',
+                bodyColor: '#fff',
+                borderColor: '#00d4ff',
+                borderWidth: 1,
+                padding: 12,
+                displayColors: false
+            }
+        },
+        scales: {
+            y: {
+                ticks: { color: '#fff', font: { size: 12 } },
+                grid: { color: '#333' }
+            },
+            x: {
+                ticks: { color: '#fff', font: { size: 12 } },
+                grid: { color: '#333' }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

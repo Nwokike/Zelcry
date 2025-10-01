@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="landing-page">
+    <div class="hero">
+        <h1>Welcome to Zelcry 🌱</h1>
+        <p class="tagline">Your AI-Powered Sustainable Crypto Advisor</p>
+        <p class="mission">
+            Zelcry helps crypto beginners make informed, sustainable investment decisions. 
+            We combine real-time market data with impact scoring to guide you toward 
+            cryptocurrencies that align with your values and financial goals.
+        </p>
+    </div>
+
+    <div class="features">
+        <div class="feature-card">
+            <span class="feature-icon">📊</span>
+            <h3>Portfolio Tracking</h3>
+            <p>Monitor your crypto investments with real-time pricing and performance metrics</p>
+        </div>
+        <div class="feature-card">
+            <span class="feature-icon">🌍</span>
+            <h3>Impact Scores</h3>
+            <p>Discover the environmental and governance impact of your crypto choices</p>
+        </div>
+        <div class="feature-card">
+            <span class="feature-icon">🤖</span>
+            <h3>AI Advisor "Beacon"</h3>
+            <p>Get personalized recommendations based on sustainability and market trends</p>
+        </div>
+    </div>
+
+    {% if not user.is_authenticated %}
+    <div class="cta-section">
+        <a href="{% url 'signup' %}" class="btn btn-primary">Get Started</a>
+        <a href="{% url 'login' %}" class="btn btn-secondary">Login</a>
+    </div>
+    {% else %}
+    <div class="cta-section">
+        <a href="{% url 'dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Sidebar AdSense Placeholder -->
+{% endblock %}
