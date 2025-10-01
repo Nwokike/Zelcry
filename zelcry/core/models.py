@@ -13,6 +13,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     risk_tolerance = models.CharField(max_length=10, choices=RISK_CHOICES, default='Low')
     xp_points = models.IntegerField(default=0)
+    theme = models.CharField(max_length=10, choices=[('light', 'Light'), ('dark', 'Dark')], default='light')
     
     def __str__(self):
         return f"{self.user.username}'s Profile"
@@ -61,3 +62,34 @@ class CryptoAssetDetails(models.Model):
     
     def __str__(self):
         return f"{self.name} ({self.symbol})"
+
+
+class ChatMessage(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='chat_messages')
+    session_id = models.CharField(max_length=100, null=True, blank=True)
+    message = models.TextField()
+    response = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['created_at']
+    
+    def __str__(self):
+        username = self.user.username if self.user else f"Guest-{self.session_id}"
+        return f"{username} - {self.message[:50]}"
+
+
+class PriceAlert(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='price_alerts')
+    coin_id = models.CharField(max_length=100)
+    coin_name = models.CharField(max_length=100)
+    target_price = models.DecimalField(max_digits=20, decimal_places=2)
+    condition = models.CharField(max_length=10, choices=[('above', 'Above'), ('below', 'Below')])
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.coin_name} {self.condition} ${self.target_price}"

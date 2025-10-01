@@ -515,3 +515,59 @@ def ai_advisor_query(request):
             return JsonResponse({'response': f'Sorry, I encountered an error. Please try again. 🤖'})
     
     return JsonResponse({'response': 'Invalid request'}, status=400)
+
+import uuid
+from .groq_ai import get_groq_response
+from .models import ChatMessage
+
+@csrf_exempt
+def toggle_theme(request):
+    if request.method == 'POST' and request.user.is_authenticated:
+        data = json.loads(request.body)
+        theme = data.get('theme', 'light')
+        request.user.profile.theme = theme
+        request.user.profile.save()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})
+
+def guest_chat(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        message = data.get('message', '')
+        
+        if request.user.is_authenticated:
+            user_chats = ChatMessage.objects.filter(user=request.user).count()
+            response = get_groq_response(message, f"User has {user_chats} previous chats")
+            
+            ChatMessage.objects.create(
+                user=request.user,
+                message=message,
+                response=response
+            )
+        else:
+            session_id = request.session.get('guest_chat_id')
+            if not session_id:
+                session_id = str(uuid.uuid4())
+                request.session['guest_chat_id'] = session_id
+            
+            guest_chat_count = request.session.get('guest_chat_count', 0)
+            
+            if guest_chat_count >= 1:
+                return JsonResponse({
+                    'response': "You've used your free AI chat! Sign up to continue chatting with Beacon.",
+                    'limit_reached': True
+                })
+            
+            response = get_groq_response(message, "This is a guest user - encourage them to sign up")
+            
+            ChatMessage.objects.create(
+                session_id=session_id,
+                message=message,
+                response=response
+            )
+            
+            request.session['guest_chat_count'] = guest_chat_count + 1
+        
+        return JsonResponse({'response': response, 'limit_reached': False})
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)

@@ -30,4 +30,6 @@ urlpatterns = [
     path('crypto/<str:coin_id>/', views.crypto_details, name='crypto_details'),
     path('ai-advisor/', views.ai_advisor, name='ai_advisor'),
     path('ai-advisor/query/', views.ai_advisor_query, name='ai_advisor_query'),
+    path('toggle-theme/', views.toggle_theme, name='toggle_theme'),
+    path('guest-chat/', views.guest_chat, name='guest_chat'),
 ]

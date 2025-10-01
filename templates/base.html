@@ -1,85 +1,233 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#FFFFFF">
-    <meta name="description" content="Zelcry - AI-powered sustainable crypto advisor. Track your portfolio, discover eco-friendly cryptocurrencies, and make informed investment decisions.">
-    <title>{% block title %}Zelcry - Sustainable Crypto Advisor{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>{% block title %}Zelcry - Your Sustainable Crypto Companion{% endblock %}</title>
     {% load pwa %}
     {% progressive_web_app_meta %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            
+            --bg: #ffffff;
+            --bg-secondary: #f9fafb;
+            --text: #111827;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --bg-secondary: #1e293b;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .top-bar {
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            padding: 1rem;
+        }
+
+        .top-bar-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.5rem;
+        }
+
+        .top-bar-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px var(--shadow);
+        }
+
+        .card {
+            background: var(--bg);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.875rem;
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .nav-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 0.75rem 0;
+            padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .content-area {
+            padding: 1rem 0;
+            padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            min-height: calc(100vh - 80px);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
     {% block extra_css %}{% endblock %}
 </head>
-<body>
-    <header class="header">
-        <div class="header-content">
-            <div class="header-left">
-                {% if request.path != '/' and user.is_authenticated %}
-                <button class="back-button" aria-label="Go back">
-                    ←
-                </button>
-                {% endif %}
-                <a href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'index' %}{% endif %}" class="logo">
-                    Zelcry
-                </a>
-            </div>
-
-            <div class="header-right">
-                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
-                    🌙
-                </button>
-
-                {% if user.is_authenticated %}
-                <div class="user-badge">
-                    <span>{{ user.username }}</span>
-                    <span class="xp-badge">{{ user.profile.xp_points }} XP</span>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </header>
-
-    <div class="page-wrapper {% if not user.is_authenticated %}no-auth{% endif %}">
-        {% if messages %}
-        <div class="container">
+<body data-theme="{{ user.profile.theme|default:'light' }}">
+    {% if messages %}
+        <div class="container" style="padding-top: 1rem;">
             {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">
-                <span>{% if message.tags == 'success' %}✓{% elif message.tags == 'error' %}✗{% else %}ℹ{% endif %}</span>
-                <span>{{ message }}</span>
-            </div>
+                <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+                    {{ message }}
+                </div>
             {% endfor %}
         </div>
-        {% endif %}
-
-        {% block content %}{% endblock %}
-    </div>
-
-    {% if user.is_authenticated %}
-    <nav class="bottom-nav">
-        <div class="bottom-nav-content">
-            <a href="{% url 'dashboard' %}" class="nav-item {% if 'dashboard' in request.path %}active{% endif %}">
-                <span class="nav-icon">📊</span>
-                <span class="nav-label">Portfolio</span>
-            </a>
-            <a href="{% url 'index' %}" class="nav-item {% if request.path == '/' %}active{% endif %}">
-                <span class="nav-icon">🏠</span>
-                <span class="nav-label">Home</span>
-            </a>
-            <a href="{% url 'ai_advisor' %}" class="nav-item {% if 'ai-advisor' in request.path %}active{% endif %}">
-                <span class="nav-icon">🤖</span>
-                <span class="nav-label">AI Advisor</span>
-            </a>
-            <a href="{% url 'logout' %}" class="nav-item">
-                <span class="nav-icon">🚪</span>
-                <span class="nav-label">Logout</span>
-            </a>
-        </div>
-    </nav>
     {% endif %}
 
-    <script src="{% static 'js/main.js' %}"></script>
+    {% block content %}{% endblock %}
+
+    <script>
+        const themeToggle = document.querySelector('.theme-toggle');
+        const savedTheme = localStorage.getItem('theme') || '{{ user.profile.theme|default:"light" }}';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        
+        if (themeToggle) {
+            themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+            
+            themeToggle.addEventListener('click', async () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+                
+                {% if user.is_authenticated %}
+                try {
+                    await fetch('/toggle-theme/', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ theme: newTheme })
+                    });
+                } catch (e) {}
+                {% endif %}
+            });
+        }
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

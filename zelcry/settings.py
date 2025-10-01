@@ -25,11 +25,20 @@ SECRET_KEY = config(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)  # Default False for safety
 
 # --- ALLOWED_HOSTS ---
-# Allow all hosts for Replit (required for proxied preview)
-ALLOWED_HOSTS = ['*']
+# Local defaults
+default_hosts = ['127.0.0.1', 'localhost', '*']
+
+# If running on Render, allow the external hostname and all .onrender.com subdomains
+if 'RENDER' in os.environ:
+    render_host = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+    if render_host:
+        default_hosts.append(render_host)
+    default_hosts.append('.onrender.com')
+
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=','.join(default_hosts)).split(',')
 
 
 # Application definition
@@ -79,12 +88,11 @@ WSGI_APPLICATION = 'zelcry.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Use PostgreSQL if DATABASE_URL is set (production), otherwise use SQLite (development)
-if 'DATABASE_URL' in os.environ:
+if 'RENDER' in os.environ:
     DATABASES = {
         'default': dj_database_url.config(
             conn_max_age=600,
-            ssl_require=False  # Replit PostgreSQL doesn't require SSL
+            ssl_require=True
         )
     }
 else:
@@ -144,3 +152,6 @@ LOGOUT_REDIRECT_URL = '/'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Groq AI Configuration
+GROQ_API_KEY = config('GROQ_API_KEY', default='')
