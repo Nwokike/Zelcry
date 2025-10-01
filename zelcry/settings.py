@@ -25,20 +25,11 @@ SECRET_KEY = config(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)  # Default False for safety
+DEBUG = config('DEBUG', default=True, cast=bool)
 
 # --- ALLOWED_HOSTS ---
-# Local defaults
-default_hosts = ['127.0.0.1', 'localhost']
-
-# If running on Render, allow the external hostname and all .onrender.com subdomains
-if 'RENDER' in os.environ:
-    render_host = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-    if render_host:
-        default_hosts.append(render_host)
-    default_hosts.append('.onrender.com')
-
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=','.join(default_hosts)).split(',')
+# Allow all hosts for Replit (required for proxied preview)
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -88,11 +79,12 @@ WSGI_APPLICATION = 'zelcry.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-if 'RENDER' in os.environ:
+# Use PostgreSQL if DATABASE_URL is set (production), otherwise use SQLite (development)
+if 'DATABASE_URL' in os.environ:
     DATABASES = {
         'default': dj_database_url.config(
             conn_max_age=600,
-            ssl_require=True
+            ssl_require=False  # Replit PostgreSQL doesn't require SSL
         )
     }
 else:
