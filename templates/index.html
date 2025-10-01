@@ -6,26 +6,31 @@
 <style>
     .hero {
         text-align: center;
-        padding: 3rem 0;
+        padding: 4rem 0 3rem 0;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+        border-radius: 1rem;
+        margin: 1rem 0;
     }
 
-    .hero h1 {
-        font-size: 2.5rem;
-        font-weight: 800;
+    .hero-title {
+        font-size: 2.75rem;
+        font-weight: 900;
         background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
         margin-bottom: 1rem;
+        line-height: 1.2;
     }
 
-    .hero p {
+    .hero-subtitle {
         color: var(--text-secondary);
-        font-size: 1.125rem;
-        margin-bottom: 2rem;
+        font-size: 1.25rem;
+        margin-bottom: 2.5rem;
         max-width: 600px;
         margin-left: auto;
         margin-right: auto;
+        line-height: 1.6;
     }
 
     .cta-buttons {
@@ -33,343 +38,449 @@
         gap: 1rem;
         justify-content: center;
         flex-wrap: wrap;
+        margin-bottom: 1.5rem;
     }
 
-    .stats {
+    .cta-primary {
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: white;
+        border: none;
+        border-radius: 0.75rem;
+        font-weight: 700;
+        font-size: 1.125rem;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .cta-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .cta-secondary {
+        padding: 1rem 2rem;
+        background: transparent;
+        color: var(--primary);
+        border: 2px solid var(--primary);
+        border-radius: 0.75rem;
+        font-weight: 700;
+        font-size: 1.125rem;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .cta-secondary:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .trust-badges {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border);
+    }
+
+    .badge-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    .stats-section {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 2rem;
         margin: 3rem 0;
+        padding: 2rem;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
     }
 
-    .stat {
+    .stat-item {
         text-align: center;
     }
 
     .stat-number {
-        font-size: 2rem;
-        font-weight: 800;
-        color: var(--primary);
+        font-size: 3rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
     }
 
     .stat-label {
         color: var(--text-secondary);
-        font-size: 0.875rem;
+        font-size: 1rem;
+        font-weight: 600;
     }
 
-    .features {
+    .features-section {
+        margin: 4rem 0;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .section-title {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: var(--text);
+        margin-bottom: 0.75rem;
+    }
+
+    .section-subtitle {
+        color: var(--text-secondary);
+        font-size: 1.125rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .features-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 1.5rem;
-        margin: 3rem 0;
     }
 
-    .feature {
-        text-align: center;
+    .feature-card {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
         padding: 2rem;
+        text-align: center;
+        transition: all 0.3s;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px var(--shadow);
+        border-color: var(--primary);
     }
 
     .feature-icon {
-        font-size: 3rem;
+        font-size: 3.5rem;
         margin-bottom: 1rem;
+        display: block;
     }
 
-    .feature h3 {
-        margin-bottom: 0.5rem;
+    .feature-title {
         font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 0.75rem;
     }
 
-    .feature p {
+    .feature-description {
         color: var(--text-secondary);
         line-height: 1.6;
     }
 
-    .demo-chat {
-        margin: 3rem 0;
-        padding: 2rem;
-        background: var(--bg-secondary);
+    .cta-section {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
         border-radius: 1rem;
+        padding: 3rem 2rem;
+        text-align: center;
+        margin: 4rem 0;
     }
 
-    .chat-header {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .chat-header h2 {
-        flex: 1;
-    }
-
-    .chat-badge {
-        background: var(--primary);
+    .cta-section h2 {
         color: white;
-        padding: 0.25rem 0.75rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-
-    .chat-box {
-        background: var(--bg);
-        border-radius: 0.75rem;
-        padding: 1rem;
-        min-height: 200px;
-        max-height: 400px;
-        overflow-y: auto;
+        font-size: 2rem;
+        font-weight: 800;
         margin-bottom: 1rem;
     }
 
-    .message {
-        margin-bottom: 1rem;
-        padding: 0.75rem;
-        border-radius: 0.75rem;
-        max-width: 80%;
-    }
-
-    .message-user {
-        background: var(--primary);
-        color: white;
+    .cta-section p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.125rem;
+        margin-bottom: 2rem;
+        max-width: 600px;
         margin-left: auto;
+        margin-right: auto;
     }
 
-    .message-ai {
-        background: var(--bg-secondary);
-        color: var(--text);
-    }
-
-    .chat-input-wrapper {
-        display: flex;
-        gap: 0.75rem;
-    }
-
-    .chat-input-wrapper input {
-        flex: 1;
-    }
-
-    .live-prices {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1rem;
-        margin: 2rem 0;
-    }
-
-    .price-card {
-        padding: 1rem;
-        background: var(--bg-secondary);
+    .cta-white-btn {
+        padding: 1rem 2rem;
+        background: white;
+        color: var(--primary);
+        border: none;
         border-radius: 0.75rem;
-        border: 1px solid var(--border);
+        font-weight: 700;
+        font-size: 1.125rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s;
     }
 
-    .price-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    .cta-white-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .sustainability-highlight {
+        background: rgba(16, 185, 129, 0.1);
+        border: 2px solid var(--success);
+        border-radius: 1rem;
+        padding: 2rem;
+        margin: 3rem 0;
+        text-align: center;
+    }
+
+    .sustainability-highlight h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--success);
         margin-bottom: 0.75rem;
     }
 
-    .price-change {
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.5rem;
+    .sustainability-highlight p {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    .quick-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin: 3rem 0;
+    }
+
+    .quick-link-card {
+        background: var(--bg);
+        border: 2px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .quick-link-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .quick-link-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    .quick-link-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+    }
+
+    .quick-link-description {
+        color: var(--text-secondary);
         font-size: 0.875rem;
-        font-weight: 600;
     }
 
-    .positive {
-        background: #d1fae5;
-        color: #065f46;
-    }
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2rem;
+        }
 
-    .negative {
-        background: #fee2e2;
-        color: #991b1b;
+        .hero-subtitle {
+            font-size: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.75rem;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="top-bar">
-    <div class="top-bar-content">
-        <a href="{% url 'index' %}" class="logo">Zelcry</a>
-        <button class="theme-toggle">🌙</button>
-    </div>
-</div>
-
 <div class="content-area">
     <div class="container">
         <div class="hero">
-            <h1>Invest in Crypto, Sustainably 🌱</h1>
-            <p>Track your portfolio, discover eco-friendly cryptocurrencies, and get AI-powered insights to make smarter investment decisions.</p>
+            <h1 class="hero-title">Invest in Crypto, Sustainably 🌱</h1>
+            <p class="hero-subtitle">
+                Track your portfolio, discover eco-friendly cryptocurrencies, and get AI-powered insights 
+                to make smarter, more sustainable investment decisions.
+            </p>
             
             {% if not user.is_authenticated %}
             <div class="cta-buttons">
-                <a href="{% url 'signup' %}" class="btn btn-primary">Get Started Free</a>
-                <a href="{% url 'login' %}" class="btn btn-outline">Sign In</a>
+                <a href="{% url 'signup' %}" class="cta-primary">Get Started Free</a>
+                <a href="{% url 'login' %}" class="cta-secondary">Sign In</a>
             </div>
             {% else %}
             <div class="cta-buttons">
-                <a href="{% url 'dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
+                <a href="{% url 'dashboard' %}" class="cta-primary">Go to Dashboard</a>
+                <a href="{% url 'ai_advisor' %}" class="cta-secondary">Chat with AI Advisor</a>
             </div>
+            {% endif %}
+
+            <div class="trust-badges">
+                <div class="badge-item">
+                    <span>✓</span>
+                    <span>Real-time Data</span>
+                </div>
+                <div class="badge-item">
+                    <span>✓</span>
+                    <span>AI-Powered Insights</span>
+                </div>
+                <div class="badge-item">
+                    <span>✓</span>
+                    <span>Sustainability Focused</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <div class="stat-item">
+                <div class="stat-number">250+</div>
+                <div class="stat-label">Cryptocurrencies</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Market Data</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Free to Start</div>
+            </div>
+        </div>
+
+        <section class="features-section">
+            <div class="section-header">
+                <h2 class="section-title">Everything You Need to Invest Smarter</h2>
+                <p class="section-subtitle">
+                    Powerful tools designed to help you make informed, sustainable crypto investment decisions
+                </p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">📊</span>
+                    <h3 class="feature-title">Portfolio Tracking</h3>
+                    <p class="feature-description">
+                        Track all your cryptocurrency investments in one place with real-time price updates and performance analytics.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">🤖</span>
+                    <h3 class="feature-title">AI Advisor (Beacon)</h3>
+                    <p class="feature-description">
+                        Get personalized investment advice powered by advanced AI that understands your risk tolerance and goals.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">🌍</span>
+                    <h3 class="feature-title">Sustainability Scores</h3>
+                    <p class="feature-description">
+                        Discover eco-friendly cryptocurrencies with our comprehensive sustainability rating system for every coin.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">📰</span>
+                    <h3 class="feature-title">Market News</h3>
+                    <p class="feature-description">
+                        Stay informed with curated crypto news, market updates, and insights from industry leaders.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">🎯</span>
+                    <h3 class="feature-title">Smart Alerts</h3>
+                    <p class="feature-description">
+                        Set price alerts and receive notifications when your favorite cryptocurrencies hit your target prices.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">🏆</span>
+                    <h3 class="feature-title">XP & Rewards</h3>
+                    <p class="feature-description">
+                        Earn experience points and unlock achievements as you build your crypto knowledge and portfolio.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <div class="sustainability-highlight">
+            <h3>🌱 Why Sustainable Investing Matters</h3>
+            <p>
+                Cryptocurrency has a reputation for high energy consumption, but many innovative projects are 
+                leading the way with eco-friendly technologies. Zelcry helps you identify and invest in 
+                cryptocurrencies that align with your environmental values without compromising on returns.
+            </p>
+        </div>
+
+        <section class="quick-links">
+            <a href="{% url 'cryptocurrencies' %}" class="quick-link-card">
+                <span class="quick-link-icon">💰</span>
+                <div class="quick-link-title">Browse Cryptocurrencies</div>
+                <div class="quick-link-description">Explore 250+ cryptocurrencies with prices, charts, and sustainability ratings</div>
+            </a>
+
+            <a href="{% url 'news' %}" class="quick-link-card">
+                <span class="quick-link-icon">📰</span>
+                <div class="quick-link-title">Market News</div>
+                <div class="quick-link-description">Get the latest crypto news, trends, and market insights</div>
+            </a>
+
+            {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}" class="quick-link-card">
+                <span class="quick-link-icon">📊</span>
+                <div class="quick-link-title">Your Portfolio</div>
+                <div class="quick-link-description">View and manage your cryptocurrency investments</div>
+            </a>
+            {% else %}
+            <a href="{% url 'signup' %}" class="quick-link-card">
+                <span class="quick-link-icon">✨</span>
+                <div class="quick-link-title">Get Started</div>
+                <div class="quick-link-description">Create your free account and start tracking your portfolio</div>
+            </a>
+            {% endif %}
+        </section>
+
+        <div class="cta-section">
+            <h2>Ready to Start Your Sustainable Crypto Journey?</h2>
+            <p>
+                Join Zelcry today and discover how you can invest in cryptocurrency responsibly 
+                while building wealth for your future.
+            </p>
+            {% if not user.is_authenticated %}
+            <a href="{% url 'signup' %}" class="cta-white-btn">Create Free Account →</a>
+            {% else %}
+            <a href="{% url 'dashboard' %}" class="cta-white-btn">Go to Dashboard →</a>
             {% endif %}
         </div>
 
-        <div class="stats">
-            <div class="stat">
-                <div class="stat-number">100+</div>
-                <div class="stat-label">Cryptos Tracked</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">24/7</div>
-                <div class="stat-label">Real-time Data</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">50+</div>
-                <div class="stat-label">Sustainability Scores</div>
-            </div>
+        <div style="text-align: center; padding: 2rem 0; color: var(--text-secondary); font-size: 0.875rem; border-top: 1px solid var(--border); margin-top: 3rem;">
+            <p>
+                <a href="{% url 'terms_of_service' %}" style="color: var(--primary); text-decoration: none; margin: 0 0.5rem;">Terms of Service</a> • 
+                <a href="{% url 'privacy_policy' %}" style="color: var(--primary); text-decoration: none; margin: 0 0.5rem;">Privacy Policy</a>
+            </p>
+            <p style="margin-top: 0.5rem;">© 2025 Zelcry. All rights reserved.</p>
         </div>
-
-        <div class="demo-chat">
-            <div class="chat-header">
-                <h2>🤖 Try Our AI Advisor</h2>
-                <span class="chat-badge" id="chat-limit">{% if user.is_authenticated %}Unlimited{% else %}1 Free{% endif %}</span>
-            </div>
-            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Ask Beacon about cryptocurrencies, sustainability, or investment advice!</p>
-            
-            <div class="chat-box" id="chat-box">
-                <div class="message message-ai">
-                    👋 Hi! I'm Beacon, your AI crypto advisor. Ask me anything about cryptocurrencies and sustainable investing!
-                </div>
-            </div>
-            
-            <div class="chat-input-wrapper">
-                <input type="text" id="chat-input" class="input-field" placeholder="Ask about Bitcoin, Ethereum, or sustainable cryptos..." />
-                <button onclick="sendMessage()" class="btn btn-primary">Send</button>
-            </div>
-        </div>
-
-        <h2 style="text-align: center; margin: 3rem 0 2rem;">Live Cryptocurrency Prices</h2>
-        <div class="live-prices" id="live-prices">
-            <div class="card"><div class="spinner"></div></div>
-            <div class="card"><div class="spinner"></div></div>
-            <div class="card"><div class="spinner"></div></div>
-        </div>
-
-        <h2 style="text-align: center; margin: 3rem 0 2rem;">Why Choose Zelcry?</h2>
-        
-        <div class="features">
-            <div class="feature">
-                <div class="feature-icon">📊</div>
-                <h3>Smart Portfolio Tracking</h3>
-                <p>Monitor investments with real-time pricing and performance analytics</p>
-            </div>
-            
-            <div class="feature">
-                <div class="feature-icon">🌱</div>
-                <h3>Sustainability Scores</h3>
-                <p>Every crypto rated on energy efficiency, governance, and utility</p>
-            </div>
-            
-            <div class="feature">
-                <div class="feature-icon">🤖</div>
-                <h3>AI-Powered Insights</h3>
-                <p>Get personalized recommendations based on your risk tolerance</p>
-            </div>
-            
-            <div class="feature">
-                <div class="feature-icon">🔔</div>
-                <h3>Price Alerts</h3>
-                <p>Never miss important price movements or opportunities</p>
-            </div>
-        </div>
-
-        {% if not user.is_authenticated %}
-        <div class="card" style="text-align: center; margin: 3rem 0; padding: 3rem 2rem;">
-            <h2 style="margin-bottom: 1rem;">Ready to Start Your Crypto Journey?</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 2rem;">Join thousands of investors making smarter, more sustainable investments.</p>
-            <a href="{% url 'signup' %}" class="btn btn-primary">Create Free Account</a>
-        </div>
-        {% endif %}
     </div>
 </div>
-
-<script>
-let chatLimitReached = false;
-
-async function sendMessage() {
-    const input = document.getElementById('chat-input');
-    const message = input.value.trim();
-    
-    if (!message || chatLimitReached) return;
-    
-    const chatBox = document.getElementById('chat-box');
-    
-    chatBox.innerHTML += `<div class="message message-user">${message}</div>`;
-    input.value = '';
-    chatBox.scrollTop = chatBox.scrollHeight;
-    
-    chatBox.innerHTML += `<div class="message message-ai"><div class="spinner"></div></div>`;
-    
-    try {
-        const response = await fetch('/guest-chat/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message })
-        });
-        
-        const data = await response.json();
-        
-        chatBox.removeChild(chatBox.lastChild);
-        chatBox.innerHTML += `<div class="message message-ai">${data.response}</div>`;
-        
-        if (data.limit_reached) {
-            chatLimitReached = true;
-            document.getElementById('chat-limit').textContent = 'Limit Reached';
-            chatBox.innerHTML += `<div class="message message-ai">💡 <a href="{% url 'signup' %}" style="color: var(--primary)">Sign up</a> to continue chatting and unlock all features!</div>`;
-        }
-    } catch (error) {
-        chatBox.removeChild(chatBox.lastChild);
-        chatBox.innerHTML += `<div class="message message-ai">Sorry, I had trouble connecting. Please try again.</div>`;
-    }
-    
-    chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-document.getElementById('chat-input')?.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') sendMessage();
-});
-
-async function loadPrices() {
-    try {
-        const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=6&page=1&sparkline=false&price_change_percentage=24h');
-        const coins = await response.json();
-        
-        const container = document.getElementById('live-prices');
-        container.innerHTML = coins.map(coin => `
-            <div class="price-card">
-                <div class="price-header">
-                    <div>
-                        <div style="font-weight: 700;">${coin.name}</div>
-                        <div style="font-size: 0.875rem; color: var(--text-secondary);">${coin.symbol.toUpperCase()}</div>
-                    </div>
-                    <div class="price-change ${coin.price_change_percentage_24h >= 0 ? 'positive' : 'negative'}">
-                        ${coin.price_change_percentage_24h >= 0 ? '+' : ''}${coin.price_change_percentage_24h.toFixed(2)}%
-                    </div>
-                </div>
-                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">
-                    $${coin.current_price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                </div>
-            </div>
-        `).join('');
-    } catch (error) {
-        console.error('Error loading prices:', error);
-    }
-}
-
-loadPrices();
-setInterval(loadPrices, 60000);
-</script>
 {% endblock %}

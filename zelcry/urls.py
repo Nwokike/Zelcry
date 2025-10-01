@@ -32,4 +32,8 @@ urlpatterns = [
     path('ai-advisor/query/', views.ai_advisor_query, name='ai_advisor_query'),
     path('toggle-theme/', views.toggle_theme, name='toggle_theme'),
     path('guest-chat/', views.guest_chat, name='guest_chat'),
+    path('cryptocurrencies/', views.cryptocurrencies, name='cryptocurrencies'),
+    path('news/', views.news, name='news'),
+    path('terms/', views.terms_of_service, name='terms_of_service'),
+    path('privacy/', views.privacy_policy, name='privacy_policy'),
 ]

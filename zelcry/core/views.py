@@ -424,3 +424,106 @@ def guest_chat(request):
         return JsonResponse({'response': response, 'limit_reached': False})
     
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def cryptocurrencies(request):
+    page = int(request.GET.get('page', 1))
+    search_query = request.GET.get('search', '').lower()
+    per_page = 100
+    
+    try:
+        response = requests.get('https://api.coingecko.com/api/v3/coins/markets', params={
+            'vs_currency': 'usd',
+            'order': 'market_cap_desc',
+            'per_page': per_page,
+            'page': page,
+            'sparkline': False,
+            'price_change_percentage': '24h,7d'
+        }, timeout=10)
+        
+        if response.status_code == 200:
+            all_coins = response.json()
+            if search_query:
+                all_coins = [c for c in all_coins if search_query in c['name'].lower() or search_query in c['symbol'].lower()]
+        else:
+            all_coins = []
+    except:
+        all_coins = []
+    
+    for coin in all_coins:
+        try:
+            crypto_details = CryptoAssetDetails.objects.get(coin_id=coin['id'])
+            coin['impact_score'] = crypto_details.get_impact_score
+        except CryptoAssetDetails.DoesNotExist:
+            coin['impact_score'] = None
+    
+    context = {
+        'coins': all_coins,
+        'page': page,
+        'search_query': search_query,
+        'has_next': len(all_coins) == per_page,
+        'has_prev': page > 1,
+    }
+    
+    return render(request, 'cryptocurrencies.html', context)
+
+def news(request):
+    try:
+        response = requests.get('https://api.coingecko.com/api/v3/coins/markets', params={
+            'vs_currency': 'usd',
+            'order': 'market_cap_desc',
+            'per_page': 10,
+            'page': 1,
+            'sparkline': False,
+            'price_change_percentage': '24h,7d'
+        }, timeout=10)
+        
+        top_movers = []
+        if response.status_code == 200:
+            coins = response.json()
+            top_movers = sorted(
+                [c for c in coins if c.get('price_change_percentage_24h')],
+                key=lambda x: abs(x['price_change_percentage_24h']),
+                reverse=True
+            )[:5]
+    except:
+        top_movers = []
+    
+    news_items = [
+        {
+            'title': 'Cryptocurrency Market Update',
+            'description': 'Latest trends and insights from the crypto market. Track top performers and emerging opportunities.',
+            'time': 'Updated daily',
+            'category': 'Market Analysis'
+        },
+        {
+            'title': 'Sustainable Crypto Initiatives',
+            'description': 'Major cryptocurrencies are transitioning to eco-friendly consensus mechanisms to reduce carbon footprint.',
+            'time': 'Recent',
+            'category': 'Sustainability'
+        },
+        {
+            'title': 'DeFi Innovation Continues',
+            'description': 'Decentralized finance platforms are introducing new features for better user experience and security.',
+            'time': 'This week',
+            'category': 'Technology'
+        },
+        {
+            'title': 'Regulatory Developments',
+            'description': 'Global regulators are working on frameworks to ensure crypto market stability and investor protection.',
+            'time': 'Ongoing',
+            'category': 'Regulation'
+        },
+    ]
+    
+    context = {
+        'news_items': news_items,
+        'top_movers': top_movers,
+    }
+    
+    return render(request, 'news.html', context)
+
+def terms_of_service(request):
+    return render(request, 'terms_of_service.html')
+
+def privacy_policy(request):
+    return render(request, 'privacy_policy.html')
