@@ -2,6 +2,26 @@ services:
   - type: web
     name: zelcry
     env: python
-    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    pythonVersion: '3.11'
+    plan: free
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --no-input
+      python manage.py migrate
     startCommand: gunicorn zelcry.wsgi:application
-    postDeployCommand: python manage.py migrate
+    envVars:
+      - key: DATABASE_URL
+        fromService:
+          type: psql
+          name: zelcry-database
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: False
+
+  - type: psql
+    name: zelcry-database
+    plan: free
+    databaseName: zelcry_db
+    user: zelcry_user
