@@ -1,82 +1,117 @@
-# Zelcry - Sustainable Crypto Portfolio Tracker
+# Zelcry - Sustainable Crypto Investment Platform
 
 ## Overview
-Zelcry is a startup-ready Progressive Web App (PWA) that helps users track their cryptocurrency portfolios with a focus on sustainable and eco-friendly investing. The app features AI-powered investment advice, real-time crypto data, and sustainability scoring.
-
-## Current State (October 2025)
-Successfully transformed from a basic portfolio tracker into a modern, mobile-first PWA with advanced features:
-- ✅ Groq AI-powered investment advisor
-- ✅ Beautiful mobile-first UI with light/dark mode
-- ✅ Attractive landing page with guest features
-- ✅ Complete admin panel integration
-- ✅ PWA capabilities (offline support, installable)
+Zelcry is an AI-powered cryptocurrency investment platform focused on sustainability and responsible investing for beginners. The platform helps users track their crypto portfolios, discover eco-friendly cryptocurrencies, and get AI-powered investment insights.
 
 ## Recent Changes (October 1, 2025)
-
-### Major Transformation
-1. **Groq AI Integration** - Replaced keyword-based chat with advanced AI using Groq API
-2. **Modern UI Redesign** - Complete mobile-first redesign with:
-   - CSS custom properties for theming (light/dark mode)
-   - Bottom navigation (Portfolio, Home, AI Advisor, Logout)
-   - Top bar with back button and theme toggle
-   - Beautiful gradient headers and modern card designs
-3. **Landing Page** - Built conversion-focused landing page with:
-   - Hero section with value proposition
-   - Feature showcase (100+ cryptos, 24/7 data, 50+ sustainability scores)
-   - Demo crypto search
-   - Guest AI chat (1 free message before signup)
-4. **Enhanced Models** - Added ChatMessage, PriceAlert, UserProfile.theme field
-5. **Admin Panel** - All models registered with full CRUD capabilities
-
-### Files Modified
-- `templates/` - Complete redesign of all templates
-- `zelcry/core/views.py` - Updated AI advisor to use Groq
-- `zelcry/core/groq_ai.py` - New AI service module
-- `zelcry/core/models.py` - Added new models
-- `zelcry/core/admin.py` - Registered all models
+- **Unified Mobile-First UI**: Complete redesign with consistent mobile-first interface across all pages
+- **Bottom Navigation**: Added persistent bottom navigation for both logged-in and logged-out users
+- **AI Integration**: Fixed and improved Groq AI integration for chat functionality
+- **Consistent Design System**: Unified color scheme, typography, and component styling
+- **Improved User Experience**: Seamless experience whether logged in or out
+- **Security**: Implemented proper API key management using environment variables
+- **Code Cleanup**: Removed unused templates and duplicate dependencies
 
 ## Project Architecture
 
-### Technology Stack
-- **Backend**: Django 5.2.6 with PostgreSQL
-- **Frontend**: HTML, CSS (custom properties), vanilla JavaScript
+### Tech Stack
+- **Backend**: Django 5.2.6
+- **Database**: SQLite (development), PostgreSQL (production via Render)
 - **AI**: Groq API (llama-3.3-70b-versatile model)
-- **PWA**: django-pwa for Progressive Web App features
-- **Deployment**: Configured for Render with gunicorn
+- **Frontend**: Vanilla JavaScript with modern CSS
+- **PWA**: Django-PWA for progressive web app functionality
+- **Deployment**: Render (with automatic PostgreSQL integration)
 
 ### Key Features
-1. **Portfolio Management** - Track crypto holdings with real-time prices
-2. **AI Advisor** - Groq-powered chat for investment advice
-3. **Sustainability Focus** - Energy, governance, and utility scores
-4. **Risk Profiling** - Personalized recommendations based on risk tolerance
-5. **XP System** - Gamification with experience points for engagement
-6. **Dark/Light Mode** - User preference saved to profile
+1. **Portfolio Tracking**: Real-time cryptocurrency price tracking with CoinGecko API
+2. **AI Advisor (Beacon)**: Personalized investment advice using Groq AI
+3. **Sustainability Scores**: Every crypto rated on energy efficiency, governance, and utility
+4. **XP System**: Gamified experience with badges and levels
+5. **Dark/Light Mode**: System-wide theme toggle with persistent preferences
+6. **Mobile-First Design**: Optimized for mobile devices with bottom navigation
 
-### Database Models
-- `UserProfile` - Extended user with XP, risk tolerance, theme preference
-- `PortfolioAsset` - User's crypto holdings
-- `CryptoAssetDetails` - Sustainability scores for cryptocurrencies
-- `ChatMessage` - AI chat history
-- `PriceAlert` - Price notifications (future feature)
+### Project Structure
+```
+zelcry/
+├── zelcry/                 # Main project directory
+│   ├── core/              # Core app
+│   │   ├── models.py      # Database models
+│   │   ├── views.py       # View functions
+│   │   ├── groq_ai.py     # AI integration
+│   │   └── management/    # Management commands
+│   ├── settings.py        # Django settings
+│   └── urls.py           # URL routing
+├── templates/             # HTML templates
+│   ├── base.html         # Base template with unified design
+│   ├── index.html        # Landing page
+│   ├── dashboard.html    # Portfolio dashboard
+│   ├── ai_advisor.html   # AI chat interface
+│   ├── login.html        # Login page
+│   └── signup.html       # Registration page
+├── static/               # Static assets
+│   ├── css/             # Stylesheets
+│   ├── js/              # JavaScript
+│   └── icons/           # PWA icons
+├── requirements.txt     # Python dependencies
+└── manage.py           # Django management script
+```
 
 ## User Preferences
-- Mobile-first design approach
-- Bottom navigation for easy thumb access
-- Light mode as primary with dark toggle
-- Removed demo text from dashboard
-- Keep Render deployment intact (PostgreSQL)
+- **Design Philosophy**: Mobile-first, clean, sustainable-themed UI
+- **Color Scheme**: Indigo/purple primary colors, green for success/sustainability
+- **Navigation**: Bottom navigation bar for easy thumb reach on mobile
+- **Consistency**: Unified experience across authenticated and guest states
+
+## Environment Variables
+Required environment variables (set in Replit Secrets or .env):
+- `SECRET_KEY`: Django secret key
+- `DEBUG`: Debug mode (True/False)
+- `GROQ_API_KEY`: Groq AI API key for chat functionality
+- `HUGGING_FACE_API_TOKEN`: Hugging Face API token (future use)
+- `DATABASE_URL`: PostgreSQL connection string (production only)
+- `RENDER`: Render platform indicator (auto-set on Render)
+
+## Development Workflow
+1. **Local Development**: Uses SQLite database
+2. **Live Reload**: Django development server with auto-reload
+3. **Port**: Always runs on port 5000 for Replit compatibility
+4. **API Keys**: Stored in .env file (excluded from git)
+
+## Database Models
+- **UserProfile**: Extended user model with XP points, risk tolerance, theme preference
+- **PortfolioAsset**: User's cryptocurrency holdings
+- **CryptoAssetDetails**: Sustainability scores and crypto information
+- **ChatMessage**: AI chat history
+- **PriceAlert**: Price alert settings (future feature)
+
+## API Integrations
+1. **CoinGecko API**: Real-time cryptocurrency data
+2. **Groq AI**: Conversational AI for investment advice
+3. **Hugging Face**: Planned for additional AI features
 
 ## Deployment Configuration
-- **Target**: VM (stateful, always running)
-- **Build**: `pip install -r requirements.txt`
-- **Run**: `gunicorn --bind=0.0.0.0:5000 --reuse-port zelcry.wsgi:application`
-- **Database**: PostgreSQL (Render production)
+- **Platform**: Render
+- **Server**: Gunicorn WSGI server
+- **Static Files**: WhiteNoise for serving static files
+- **Database**: Neon PostgreSQL (managed by Render)
+- **SSL**: Enabled by default on Render
 
-## Security Notes
-⚠️ **CRITICAL**: Groq API key needs rotation and proper secret management via Replit Secrets
+## Known Issues & Future Improvements
+- Add price alerts functionality (models exist, UI needed)
+- Implement crypto details page
+- Add portfolio analytics charts
+- Enhanced sustainability metrics
+- Push notifications for price alerts
 
-## Next Steps
-1. Rotate and secure Groq API key
-2. Test guest chat flow thoroughly
-3. Optimize for mobile performance
-4. Consider adding price alert notifications
+## Commands
+- `python manage.py runserver 0.0.0.0:5000` - Start development server
+- `python manage.py migrate` - Run database migrations
+- `python manage.py createsuperuser` - Create admin user
+- `python manage.py seed_crypto_data` - Seed initial crypto data
+
+## Notes
+- All templates now use unified base.html for consistency
+- Bottom navigation adjusts based on authentication status
+- AI chat limited to 1 free message for guests
+- XP system rewards user engagement (login, portfolio adds, AI queries)
+- Sustainability focus differentiates from other crypto platforms

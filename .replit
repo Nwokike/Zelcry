@@ -15,10 +15,10 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Django Server"
+args = "Server"
 
 [[workflows.workflow]]
-name = "Django Server"
+name = "Server"
 author = "agent"
 
 [[workflows.workflow.tasks]]
@@ -34,10 +34,10 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 40215
+localPort = 36617
 externalPort = 3000
 
 [deployment]
-deploymentTarget = "vm"
+deploymentTarget = "autoscale"
 run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "zelcry.wsgi:application"]
-build = ["python", "-m", "pip", "install", "-r", "requirements.txt"]
+build = ["python", "manage.py", "collectstatic", "--noinput"]
