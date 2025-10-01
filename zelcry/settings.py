@@ -13,18 +13,32 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 from decouple import config
 import os
-import dj_database_url # Added for Render database connection
+import dj_database_url  # Added for Render database connection
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-vsfk^6bblojx-9-rxpv(ql+u5461mi-zsca%81(&zvwon6oc+z')
+SECRET_KEY = config(
+    'SECRET_KEY',
+    default='django-insecure-vsfk^6bblojx-9-rxpv(ql+u5461mi-zsca%81(&zvwon6oc+z'
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool) # Default changed to False for safety
+DEBUG = config('DEBUG', default=False, cast=bool)  # Default False for safety
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
+# --- ALLOWED_HOSTS ---
+# Local defaults
+default_hosts = ['127.0.0.1', 'localhost']
+
+# If running on Render, allow the external hostname and all .onrender.com subdomains
+if 'RENDER' in os.environ:
+    render_host = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+    if render_host:
+        default_hosts.append(render_host)
+    default_hosts.append('.onrender.com')
+
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=','.join(default_hosts)).split(',')
 
 
 # Application definition
@@ -73,10 +87,8 @@ WSGI_APPLICATION = 'zelcry.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-# Updated database configuration for Render
 
 if 'RENDER' in os.environ:
-    # Use the database URL from Render's environment variables for production
     DATABASES = {
         'default': dj_database_url.config(
             conn_max_age=600,
@@ -84,7 +96,6 @@ if 'RENDER' in os.environ:
         )
     }
 else:
-    # Use SQLite for local development
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -97,40 +108,26 @@ else:
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 # PWA Configuration
 PWA_APP_NAME = 'Zelcry'
@@ -142,24 +139,16 @@ PWA_APP_SCOPE = '/'
 PWA_APP_ORIENTATION = 'portrait-primary'
 PWA_APP_START_URL = '/'
 PWA_APP_ICONS = [
-    {
-        'src': '/static/icons/icon-192x192.png',
-        'sizes': '192x192',
-        'type': 'image/png'
-    },
-    {
-        'src': '/static/icons/icon-512x512.png',
-        'sizes': '512x512',
-        'type': 'image/png'
-    }
+    {'src': '/static/icons/icon-192x192.png', 'sizes': '192x192', 'type': 'image/png'},
+    {'src': '/static/icons/icon-512x512.png', 'sizes': '512x512', 'type': 'image/png'},
 ]
+
 
 # Login/Logout URLs
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
+# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
