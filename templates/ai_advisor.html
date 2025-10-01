@@ -4,29 +4,6 @@
 
 {% block extra_css %}
 <style>
-    .top-bar {
-        background: var(--bg);
-        border-bottom: 1px solid var(--border);
-        padding: 1rem;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-    }
-
-    .top-bar-content {
-        max-width: 640px;
-        margin: 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .back-btn {
-        color: var(--primary);
-        text-decoration: none;
-        font-size: 1.5rem;
-    }
-
     .chat-header {
         text-align: center;
         padding: 1.5rem;
@@ -70,6 +47,8 @@
         border-top: 1px solid var(--border);
         display: flex;
         gap: 0.75rem;
+        margin-left: -1rem;
+        margin-right: -1rem;
     }
 
     .chat-input-wrapper input {
@@ -85,39 +64,6 @@
             opacity: 1;
             transform: translateY(0);
         }
-    }
-
-    .nav-bottom {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: var(--bg);
-        border-top: 1px solid var(--border);
-        display: flex;
-        justify-content: space-around;
-        padding: 0.75rem 0;
-        padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-        z-index: 100;
-    }
-
-    .nav-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-decoration: none;
-        color: var(--text-secondary);
-        font-size: 0.75rem;
-        padding: 0.25rem 1rem;
-    }
-
-    .nav-item.active {
-        color: var(--primary);
-    }
-
-    .nav-icon {
-        font-size: 1.5rem;
-        margin-bottom: 0.25rem;
     }
 
     .suggestions {
@@ -149,7 +95,7 @@
 <div class="top-bar">
     <div class="top-bar-content">
         <a href="{% url 'dashboard' %}" class="back-btn">←</a>
-        <h1 style="font-size: 1.125rem; font-weight: 600;">AI Advisor</h1>
+        <h1 class="top-bar-title">AI Advisor</h1>
         <button class="theme-toggle">🌙</button>
     </div>
 </div>
@@ -186,25 +132,6 @@
     <input type="text" id="chat-input" class="input-field" placeholder="Ask Beacon anything about crypto..." />
     <button onclick="sendMessage()" class="btn btn-primary" id="send-btn">Send</button>
 </div>
-
-<nav class="nav-bottom">
-    <a href="{% url 'dashboard' %}" class="nav-item">
-        <span class="nav-icon">📊</span>
-        <span>Portfolio</span>
-    </a>
-    <a href="{% url 'index' %}" class="nav-item">
-        <span class="nav-icon">🏠</span>
-        <span>Home</span>
-    </a>
-    <a href="{% url 'ai_advisor' %}" class="nav-item active">
-        <span class="nav-icon">🤖</span>
-        <span>AI Advisor</span>
-    </a>
-    <a href="{% url 'logout' %}" class="nav-item">
-        <span class="nav-icon">🚪</span>
-        <span>Logout</span>
-    </a>
-</nav>
 
 <script>
 const chatBox = document.getElementById('chat-box');

@@ -153,5 +153,12 @@ LOGOUT_REDIRECT_URL = '/'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Groq AI Configuration
+# AI Configuration
 GROQ_API_KEY = config('GROQ_API_KEY', default='')
+HUGGING_FACE_API_TOKEN = config('HUGGING_FACE_API_TOKEN', default='')
+
+# Replit environment configuration
+REPLIT_ENV = 'REPL_ID' in os.environ
+if REPLIT_ENV:
+    ALLOWED_HOSTS.extend(['.replit.dev', '.repl.co'])
+    default_hosts.extend(['.replit.dev', '.repl.co'])

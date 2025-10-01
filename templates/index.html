@@ -189,6 +189,13 @@
 {% endblock %}
 
 {% block content %}
+<div class="top-bar">
+    <div class="top-bar-content">
+        <a href="{% url 'index' %}" class="logo">Zelcry</a>
+        <button class="theme-toggle">🌙</button>
+    </div>
+</div>
+
 <div class="content-area">
     <div class="container">
         <div class="hero">
@@ -364,13 +371,5 @@ async function loadPrices() {
 
 loadPrices();
 setInterval(loadPrices, 60000);
-
-function debounce(func, wait) {
-    let timeout;
-    return function(...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-    };
-}
 </script>
 {% endblock %}

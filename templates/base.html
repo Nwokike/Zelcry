@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>{% block title %}Zelcry - Your Sustainable Crypto Companion{% endblock %}</title>
+    <title>{% block title %}Zelcry - Smart Sustainable Crypto Investing{% endblock %}</title>
     {% load pwa %}
     {% progressive_web_app_meta %}
     <style>
@@ -43,6 +43,7 @@
             background: var(--bg);
             color: var(--text);
             transition: background 0.3s, color 0.3s;
+            padding-bottom: 80px;
         }
 
         .container {
@@ -68,6 +69,16 @@
             margin: 0 auto;
         }
 
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
         .back-btn {
             color: var(--primary);
             text-decoration: none;
@@ -78,6 +89,32 @@
         .top-bar-title {
             font-size: 1.125rem;
             font-weight: 600;
+        }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background: var(--bg-secondary);
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .xp-badge {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
         }
 
         .theme-toggle {
@@ -107,6 +144,17 @@
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 16px var(--shadow);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
         }
 
         .card {
@@ -154,15 +202,24 @@
             text-decoration: none;
             color: var(--text-secondary);
             font-size: 0.75rem;
+            padding: 0.25rem 1rem;
+            transition: color 0.2s;
+            flex: 1;
+            max-width: 120px;
         }
 
         .nav-item.active {
             color: var(--primary);
         }
 
+        .nav-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
         .content-area {
             padding: 1rem 0;
-            padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            padding-bottom: 1rem;
             min-height: calc(100vh - 80px);
         }
 
@@ -181,6 +238,27 @@
             background: #fee2e2;
             color: #991b1b;
         }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 0.75rem;
+            }
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -196,6 +274,36 @@
     {% endif %}
 
     {% block content %}{% endblock %}
+
+    <nav class="nav-bottom">
+        <a href="{% url 'index' %}" class="nav-item {% if request.path == '/' %}active{% endif %}">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'dashboard' %}" class="nav-item {% if 'dashboard' in request.path %}active{% endif %}">
+            <span class="nav-icon">📊</span>
+            <span>Portfolio</span>
+        </a>
+        <a href="{% url 'ai_advisor' %}" class="nav-item {% if 'ai-advisor' in request.path %}active{% endif %}">
+            <span class="nav-icon">🤖</span>
+            <span>AI Advisor</span>
+        </a>
+        <a href="{% url 'logout' %}" class="nav-item">
+            <span class="nav-icon">🚪</span>
+            <span>Logout</span>
+        </a>
+        {% else %}
+        <a href="{% url 'signup' %}" class="nav-item {% if 'signup' in request.path %}active{% endif %}">
+            <span class="nav-icon">✨</span>
+            <span>Sign Up</span>
+        </a>
+        <a href="{% url 'login' %}" class="nav-item {% if 'login' in request.path %}active{% endif %}">
+            <span class="nav-icon">🔑</span>
+            <span>Login</span>
+        </a>
+        {% endif %}
+    </nav>
 
     <script>
         const themeToggle = document.querySelector('.theme-toggle');

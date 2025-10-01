@@ -30,6 +30,14 @@
 {% endblock %}
 
 {% block content %}
+<div class="top-bar">
+    <div class="top-bar-content">
+        <a href="{% url 'index' %}" class="back-btn">←</a>
+        <h1 class="top-bar-title">Sign Up</h1>
+        <button class="theme-toggle">🌙</button>
+    </div>
+</div>
+
 <div class="content-area">
     <div class="container auth-container">
         <div class="card" style="padding: 2rem;">
@@ -107,10 +115,6 @@
                     <a href="{% url 'login' %}" style="color: var(--primary); font-weight: 600;">Sign in</a>
                 </p>
             </div>
-        </div>
-
-        <div style="text-align: center; margin-top: 1.5rem;">
-            <a href="{% url 'index' %}" style="color: var(--text-secondary);">← Back to home</a>
         </div>
     </div>
 </div>
