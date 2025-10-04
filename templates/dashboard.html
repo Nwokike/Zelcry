@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Zelcry{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">Dashboard</h2>
+            <p class="text-muted mb-0">Welcome back, {{ user.username }}!</p>
+        </div>
+        <div class="xp-badge">
+            <span>{{ badge }}</span>
+            <span>{{ level_name }}</span>
+            <span>{{ user.profile.xp_points }} XP</span>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="portfolio-stat bg-gradient">
+                <p class="mb-1">Portfolio Value</p>
+                <h3>${{ total_portfolio_value|floatformat:2 }}</h3>
+                <small class="{% if total_profit_loss >= 0 %}price-up{% else %}price-down{% endif %}">
+                    {% if total_profit_loss >= 0 %}▲{% else %}▼{% endif %} ${{ total_profit_loss|floatformat:2 }} ({{ total_roi|floatformat:2 }}%)
+                </small>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="portfolio-stat">
+                <p class="mb-1">Total Invested</p>
+                <h3>${{ total_invested|floatformat:2 }}</h3>
+                <small class="text-muted">{{ num_coins }} assets</small>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="portfolio-stat">
+                <p class="mb-1">Diversification</p>
+                <h3>{{ diversification_score|floatformat:0 }}/10</h3>
+                <div class="progress">
+                    <div class="progress-bar bg-info" style="width: {{ diversification_score }}0%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="portfolio-stat">
+                <p class="mb-1">Sustainability</p>
+                <h3>{{ sustainability_score|floatformat:1 }}/10</h3>
+                <div class="progress">
+                    <div class="progress-bar bg-success" style="width: {{ sustainability_score }}0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">Bitcoin Price Chart (30 Days)</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="bitcoinChart" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">Sustainable Cryptos</h5>
+                </div>
+                <div class="card-body">
+                    {% for crypto in sustainable_cryptos %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <strong>{{ crypto.name }}</strong>
+                            <div class="small text-muted">{{ crypto.symbol }}</div>
+                        </div>
+                        <div class="impact-score impact-high">
+                            {{ crypto.get_impact_score }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Top Gainers (24h)</h5>
+                </div>
+                <div class="card-body">
+                    {% for coin in trending_coins %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="{{ coin.image }}" alt="{{ coin.name }}" width="32" height="32">
+                            <div>
+                                <strong>{{ coin.name }}</strong>
+                                <div class="small text-muted">{{ coin.symbol|upper }}</div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold">${{ coin.current_price|floatformat:2 }}</div>
+                            <div class="small price-up">▲ {{ coin.price_change_percentage_24h|floatformat:2 }}%</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">Your Portfolio</h5>
+                </div>
+                <div class="card-body">
+                    {% if portfolio_assets %}
+                        {% for asset in portfolio_assets|slice:":5" %}
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <strong>{{ asset.coin_name }}</strong>
+                                <div class="small text-muted">{{ asset.quantity }} {{ asset.coin_symbol|upper }}</div>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold">${{ asset.total_value|floatformat:2 }}</div>
+                                <div class="small {% if asset.roi >= 0 %}price-up{% else %}price-down{% endif %}">
+                                    {% if asset.roi >= 0 %}▲{% else %}▼{% endif %} {{ asset.roi|floatformat:2 }}%
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <a href="{% url 'portfolio_analytics' %}" class="btn btn-outline-primary btn-sm w-100">View Full Portfolio</a>
+                    {% else %}
+                        <p class="text-muted text-center py-4">No assets yet. Start by adding cryptocurrencies to your portfolio!</p>
+                        <a href="{% url 'cryptocurrencies' %}" class="btn btn-primary w-100">Explore Cryptocurrencies</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const chartData = {{ bitcoin_chart_data|safe }};
+const ctx = document.getElementById('bitcoinChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: chartData.labels,
+        datasets: [{
+            label: 'Bitcoin Price (USD)',
+            data: chartData.prices,
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            y: {
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value.toLocaleString();
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

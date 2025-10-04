@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Zelcry - AI-Powered Crypto Investment Platform{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4">
+                <h1 class="display-4 fw-bold mb-4">Invest in Crypto with Confidence</h1>
+                <p class="lead mb-4">AI-powered insights, sustainable investing, and professional portfolio management all in one platform.</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{% url 'signup' %}" class="btn btn-light btn-lg">Get Started Free</a>
+                    <a href="{% url 'ai_advisor' %}" class="btn btn-outline-light btn-lg">Try AI Advisor</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="text-center">
+                    <i class="bi bi-graph-up-arrow" style="font-size: 200px; opacity: 0.2;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Why Choose Zelcry?</h2>
+            <p class="text-muted">Everything you need for smart crypto investing</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="feature-icon bg-primary-soft mx-auto">
+                        <i class="bi bi-robot"></i>
+                    </div>
+                    <h4 class="fw-bold">AI-Powered Insights</h4>
+                    <p class="text-muted">Get personalized investment advice from our advanced AI advisor powered by Groq</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="feature-icon bg-success-soft mx-auto">
+                        <i class="bi bi-leaf"></i>
+                    </div>
+                    <h4 class="fw-bold">Sustainable Focus</h4>
+                    <p class="text-muted">Track energy efficiency, governance, and real-world utility scores for responsible investing</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="feature-icon bg-info-soft mx-auto">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <h4 class="fw-bold">Portfolio Analytics</h4>
+                    <p class="text-muted">Track your investments with real-time prices, ROI calculations, and detailed analytics</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4">
+                <h2 class="fw-bold mb-4">Real-Time Market Data</h2>
+                <p class="mb-3">Access live pricing for 100+ cryptocurrencies from CoinGecko API</p>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Real-time price updates</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> 24h/7d change tracking</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Market cap & volume data</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Interactive price charts</li>
+                </ul>
+            </div>
+            <div class="col-lg-6">
+                <div class="card p-4">
+                    <h5 class="fw-bold mb-3">Featured Cryptocurrencies</h5>
+                    <div id="crypto-preview" class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Powerful Features</h2>
+            <p class="text-muted">Everything you need to succeed in crypto investing</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="card h-100 text-center p-4">
+                    <i class="bi bi-bell fs-1 text-primary mb-3"></i>
+                    <h5 class="fw-bold">Price Alerts</h5>
+                    <p class="text-muted small">Get notified when prices hit your targets</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card h-100 text-center p-4">
+                    <i class="bi bi-star fs-1 text-warning mb-3"></i>
+                    <h5 class="fw-bold">Watchlist</h5>
+                    <p class="text-muted small">Track your favorite cryptocurrencies</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card h-100 text-center p-4">
+                    <i class="bi bi-newspaper fs-1 text-info mb-3"></i>
+                    <h5 class="fw-bold">Crypto News</h5>
+                    <p class="text-muted small">Stay updated with latest market news</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card h-100 text-center p-4">
+                    <i class="bi bi-shield-check fs-1 text-success mb-3"></i>
+                    <h5 class="fw-bold">Secure & Safe</h5>
+                    <p class="text-muted small">Bank-level security for your data</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-4">Ready to Start Investing?</h2>
+        <p class="lead mb-4">Join thousands of smart investors using Zelcry</p>
+        <a href="{% url 'signup' %}" class="btn btn-light btn-lg">Create Free Account</a>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=5&page=1&sparkline=false')
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('crypto-preview');
+            container.innerHTML = data.map(coin => `
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="${coin.image}" alt="${coin.name}" width="32" height="32">
+                        <div class="text-start">
+                            <strong>${coin.name}</strong>
+                            <div class="small text-muted">${coin.symbol.toUpperCase()}</div>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold">$${coin.current_price.toLocaleString()}</div>
+                        <div class="small ${coin.price_change_percentage_24h >= 0 ? 'price-up' : 'price-down'}">
+                            ${coin.price_change_percentage_24h >= 0 ? '▲' : '▼'} ${Math.abs(coin.price_change_percentage_24h).toFixed(2)}%
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        })
+        .catch(() => {
+            document.getElementById('crypto-preview').innerHTML = '<p class="text-muted">Unable to load preview</p>';
+        });
+});
+</script>
+{% endblock %}

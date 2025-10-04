@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Portfolio Analytics - Zelcry{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="fw-bold mb-4">Portfolio Analytics</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="portfolio-stat">
+                <p class="mb-1">Total Value</p>
+                <h3>${{ total_value|floatformat:2 }}</h3>
+                <small class="{% if total_profit_loss >= 0 %}price-up{% else %}price-down{% endif %}">
+                    {% if total_profit_loss >= 0 %}▲{% else %}▼{% endif %} ${{ total_profit_loss|floatformat:2 }}
+                </small>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="portfolio-stat">
+                <p class="mb-1">Total ROI</p>
+                <h3 class="{% if total_roi >= 0 %}price-up{% else %}price-down{% endif %}">{{ total_roi|floatformat:2 }}%</h3>
+                <small class="text-muted">All-time</small>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="portfolio-stat">
+                <p class="mb-1">Total Assets</p>
+                <h3>{{ total_assets }}</h3>
+                <small class="text-muted">Cryptocurrencies</small>
+            </div>
+        </div>
+    </div>
+
+    {% if portfolio_assets %}
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">Asset Allocation</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="allocationChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">Portfolio Performance</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-white">
+            <h5 class="mb-0 fw-bold">All Holdings</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Asset</th>
+                            <th>Quantity</th>
+                            <th>Purchase Price</th>
+                            <th>Current Price</th>
+                            <th>Value</th>
+                            <th>Profit/Loss</th>
+                            <th>ROI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for asset in portfolio_assets %}
+                        <tr>
+                            <td>
+                                <strong>{{ asset.coin_name }}</strong>
+                                <div class="small text-muted">{{ asset.coin_symbol|upper }}</div>
+                            </td>
+                            <td>{{ asset.quantity }}</td>
+                            <td>${{ asset.purchase_price|floatformat:2 }}</td>
+                            <td>${{ asset.current_price|floatformat:2 }}</td>
+                            <td class="fw-bold">${{ asset.total_value|floatformat:2 }}</td>
+                            <td class="{% if asset.profit_loss >= 0 %}price-up{% else %}price-down{% endif %}">
+                                ${{ asset.profit_loss|floatformat:2 }}
+                            </td>
+                            <td class="{% if asset.roi >= 0 %}price-up{% else %}price-down{% endif %}">
+                                {{ asset.roi|floatformat:2 }}%
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-graph-up text-muted" style="font-size: 64px;"></i>
+        <h5 class="mt-3">No portfolio data yet</h5>
+        <p class="text-muted">Start adding cryptocurrencies to track your performance</p>
+        <a href="{% url 'cryptocurrencies' %}" class="btn btn-primary">Add Cryptocurrencies</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if portfolio_assets %}
+<script>
+const allocationCtx = document.getElementById('allocationChart').getContext('2d');
+new Chart(allocationCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ asset_labels|safe }},
+        datasets: [{
+            data: {{ asset_values|safe }},
+            backgroundColor: [
+                '#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b',
+                '#fa709a', '#fee140', '#30cfd0', '#a8edea', '#fed6e3'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+new Chart(performanceCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ asset_labels|safe }},
+        datasets: [{
+            label: 'ROI %',
+            data: {{ asset_roi|safe }},
+            backgroundColor: {{ asset_roi|safe }}.map(val => val >= 0 ? '#198754' : '#dc3545')
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                ticks: {
+                    callback: function(value) {
+                        return value + '%';
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

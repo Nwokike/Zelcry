@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Cryptocurrencies - Zelcry{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="fw-bold mb-4">Explore Cryptocurrencies</h2>
+
+    <div class="search-filter-section">
+        <form method="get" class="row g-3">
+            <div class="col-md-10">
+                <input type="text" class="form-control" name="search" placeholder="Search cryptocurrencies..." value="{{ search_query }}">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Cryptocurrency</th>
+                    <th>Price</th>
+                    <th>24h Change</th>
+                    <th>7d Change</th>
+                    <th>Market Cap</th>
+                    <th>Impact Score</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for coin in coins %}
+                <tr>
+                    <td>{{ coin.market_cap_rank }}</td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="{{ coin.image }}" alt="{{ coin.name }}" width="28" height="28">
+                            <div>
+                                <strong>{{ coin.name }}</strong>
+                                <div class="small text-muted">{{ coin.symbol|upper }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="fw-bold">${{ coin.current_price|floatformat:2 }}</td>
+                    <td class="{% if coin.price_change_percentage_24h >= 0 %}price-up{% else %}price-down{% endif %}">
+                        {% if coin.price_change_percentage_24h >= 0 %}▲{% else %}▼{% endif %} {{ coin.price_change_percentage_24h|floatformat:2 }}%
+                    </td>
+                    <td class="{% if coin.price_change_percentage_7d_in_currency >= 0 %}price-up{% else %}price-down{% endif %}">
+                        {% if coin.price_change_percentage_7d_in_currency >= 0 %}▲{% else %}▼{% endif %} {{ coin.price_change_percentage_7d_in_currency|floatformat:2 }}%
+                    </td>
+                    <td>${{ coin.market_cap|floatformat:0 }}</td>
+                    <td>
+                        {% if coin.impact_score %}
+                        <span class="badge {% if coin.impact_score >= 7 %}bg-success{% elif coin.impact_score >= 4 %}bg-warning{% else %}bg-secondary{% endif %}">
+                            {{ coin.impact_score }}
+                        </span>
+                        {% else %}
+                        <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user.is_authenticated %}
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="addToPortfolio('{{ coin.id }}', '{{ coin.name }}', '{{ coin.symbol }}', {{ coin.current_price }})">
+                                <i class="bi bi-plus-circle"></i>
+                            </button>
+                            <a href="{% url 'crypto_details' coin.id %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-info-circle"></i>
+                            </a>
+                        </div>
+                        {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-sm btn-outline-primary">Login</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% if has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page|add:'-1' }}{% if search_query %}&search={{ search_query }}{% endif %}">Previous</a>
+            </li>
+            {% endif %}
+            <li class="page-item active"><a class="page-link" href="#">Page {{ page }}</a></li>
+            {% if has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page|add:'1' }}{% if search_query %}&search={{ search_query }}{% endif %}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+
+<div class="modal fade" id="addToPortfolioModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add to Portfolio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'add_to_portfolio' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" name="coin_id" id="modal_coin_id">
+                    <input type="hidden" name="coin_name" id="modal_coin_name">
+                    <input type="hidden" name="coin_symbol" id="modal_coin_symbol">
+                    <input type="hidden" name="purchase_price" id="modal_purchase_price">
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Cryptocurrency</label>
+                        <input type="text" class="form-control" id="modal_display_name" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Quantity</label>
+                        <input type="number" class="form-control" name="quantity" step="0.00000001" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Purchase Price (USD)</label>
+                        <input type="number" class="form-control" id="modal_price_display" step="0.01" readonly>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add to Portfolio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function addToPortfolio(coinId, coinName, coinSymbol, price) {
+    document.getElementById('modal_coin_id').value = coinId;
+    document.getElementById('modal_coin_name').value = coinName;
+    document.getElementById('modal_coin_symbol').value = coinSymbol;
+    document.getElementById('modal_purchase_price').value = price;
+    document.getElementById('modal_display_name').value = coinName + ' (' + coinSymbol.toUpperCase() + ')';
+    document.getElementById('modal_price_display').value = price;
+    new bootstrap.Modal(document.getElementById('addToPortfolioModal')).show();
+}
+</script>
+{% endblock %}

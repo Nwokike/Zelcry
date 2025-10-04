@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Advisor - Zelcry{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="chat-container">
+        <div class="text-center mb-4">
+            <i class="bi bi-robot text-primary" style="font-size: 64px;"></i>
+            <h2 class="fw-bold mt-3">Zelcry AI Advisor</h2>
+            <p class="text-muted">Get personalized crypto investment insights powered by advanced AI</p>
+        </div>
+
+        {% if not user.is_authenticated %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            You have <strong id="messages-remaining">3</strong> free AI conversations. 
+            <a href="{% url 'signup' %}" class="alert-link">Sign up</a> for unlimited access!
+        </div>
+        {% endif %}
+
+        <div id="chat-messages" class="mb-4" style="min-height: 400px; max-height: 600px; overflow-y: auto;">
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <form id="chat-form">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="message-input" placeholder="Ask me anything about crypto investing..." required>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-send"></i> Send
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="mt-3 text-center text-muted small">
+            <i class="bi bi-shield-check me-1"></i>
+            Your conversations are private and secure
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const chatMessages = document.getElementById('chat-messages');
+const chatForm = document.getElementById('chat-form');
+const messageInput = document.getElementById('message-input');
+const messagesRemaining = document.getElementById('messages-remaining');
+
+chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const message = messageInput.value.trim();
+    if (!message) return;
+
+    addMessage(message, 'user');
+    messageInput.value = '';
+
+    const loadingMsg = addMessage('Thinking...', 'ai', true);
+
+    try {
+        const response = await fetch('{% if user.is_authenticated %}{% url "ai_advisor_query" %}{% else %}{% url "guest_chat" %}{% endif %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ message })
+        });
+
+        const data = await response.json();
+        loadingMsg.remove();
+
+        addMessage(data.response, 'ai');
+
+        if (data.messages_remaining !== undefined && data.messages_remaining !== null) {
+            messagesRemaining.textContent = data.messages_remaining;
+            if (data.limit_reached) {
+                messageInput.disabled = true;
+                chatForm.querySelector('button').disabled = true;
+            }
+        }
+    } catch (error) {
+        loadingMsg.remove();
+        addMessage('Sorry, I encountered an error. Please try again.', 'ai');
+    }
+});
+
+function addMessage(text, type, isLoading = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message text-${type === 'user' ? 'end' : 'start'} mb-3`;
+    
+    const bubble = document.createElement('div');
+    bubble.className = type === 'user' ? 'user-message' : 'ai-message';
+    bubble.textContent = text;
+    
+    if (isLoading) {
+        bubble.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Thinking...';
+    }
+    
+    messageDiv.appendChild(bubble);
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    return messageDiv;
+}
+
+addMessage("Hello! I'm Zelcry AI, your crypto investment advisor. How can I help you today?", 'ai');
+</script>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Terms of Service - Zelcry{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="fw-bold mb-4">Terms of Service</h1>
+            <p class="text-muted">Last updated: {{ current_date|date:"F d, Y" }}</p>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="fw-bold">1. Acceptance of Terms</h5>
+                    <p>By accessing and using Zelcry, you accept and agree to be bound by the terms and provision of this agreement.</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="fw-bold">2. Use License</h5>
+                    <p>Permission is granted to temporarily use Zelcry for personal, non-commercial transitory viewing only.</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="fw-bold">3. Investment Disclaimer</h5>
+                    <p class="mb-2">Zelcry is an informational platform and does not provide financial advice. Key points:</p>
+                    <ul>
+                        <li>All investment decisions are your own responsibility</li>
+                        <li>Cryptocurrency investments carry significant risk</li>
+                        <li>Past performance does not guarantee future results</li>
+                        <li>Always do your own research (DYOR) before investing</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="fw-bold">4. AI Advisor Limitations</h5>
+                    <p>The AI advisor provides general information and analysis, but should not be considered as professional financial advice. Always consult with a qualified financial advisor for investment decisions.</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="fw-bold">5. Data Accuracy</h5>
+                    <p>While we strive to provide accurate and up-to-date information from third-party APIs, we cannot guarantee the accuracy, completeness, or timeliness of the data.</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="fw-bold">6. Modifications</h5>
+                    <p>Zelcry reserves the right to revise these terms at any time. By using this platform, you agree to be bound by the current version of these Terms of Service.</p>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                If you have any questions about these Terms, please contact us through our support channels.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -548,10 +548,12 @@ def news(request):
     return render(request, 'news.html', context)
 
 def terms_of_service(request):
-    return render(request, 'terms_of_service.html')
+    context = {'current_date': datetime.now()}
+    return render(request, 'terms_of_service.html', context)
 
 def privacy_policy(request):
-    return render(request, 'privacy_policy.html')
+    context = {'current_date': datetime.now()}
+    return render(request, 'privacy_policy.html', context)
 
 @login_required
 def watchlist(request):
@@ -727,12 +729,42 @@ def portfolio_analytics(request):
         'values': [float(s.total_value) for s in reversed(snapshots)]
     }
     
+    for asset in portfolio_assets:
+        try:
+            price_response = requests.get(f'https://api.coingecko.com/api/v3/simple/price', params={
+                'ids': asset.coin_id,
+                'vs_currencies': 'usd',
+                'include_24hr_change': True
+            }, timeout=5)
+            if price_response.status_code == 200:
+                data = price_response.json().get(asset.coin_id, {})
+                asset.current_price = data.get('usd', 0)
+                asset.price_change_24h = data.get('usd_24h_change', 0)
+                asset.total_value = float(asset.quantity) * asset.current_price
+                asset.invested = float(asset.quantity) * float(asset.purchase_price)
+                asset.profit_loss = asset.total_value - asset.invested
+                asset.roi = ((asset.profit_loss / asset.invested) * 100) if asset.invested > 0 else 0
+        except:
+            asset.current_price = 0
+            asset.total_value = 0
+            asset.profit_loss = 0
+            asset.roi = 0
+
+    asset_labels = [asset.coin_name for asset in portfolio_assets]
+    asset_values = [float(asset.total_value) if hasattr(asset, 'total_value') else 0 for asset in portfolio_assets]
+    asset_roi = [float(asset.roi) if hasattr(asset, 'roi') else 0 for asset in portfolio_assets]
+    
     context = {
+        'portfolio_assets': portfolio_assets,
+        'total_assets': portfolio_assets.count(),
         'total_value': total_value,
         'total_invested': total_invested,
-        'profit_loss': profit_loss,
-        'roi': roi,
+        'total_profit_loss': profit_loss,
+        'total_roi': roi,
         'asset_allocation': asset_allocation,
+        'asset_labels': json.dumps(asset_labels),
+        'asset_values': json.dumps(asset_values),
+        'asset_roi': json.dumps(asset_roi),
         'snapshots': snapshots,
         'snapshot_data': json.dumps(snapshot_data)
     }
@@ -773,11 +805,37 @@ def market_insights(request):
     portfolio_assets = PortfolioAsset.objects.filter(user=request.user)
     risk_tolerance = request.user.profile.risk_tolerance
     
+    top_gainers = sorted(
+        [c for c in market_data if c.get('price_change_percentage_24h')],
+        key=lambda x: x['price_change_percentage_24h'],
+        reverse=True
+    )[:10]
+    
+    top_losers = sorted(
+        [c for c in market_data if c.get('price_change_percentage_24h')],
+        key=lambda x: x['price_change_percentage_24h']
+    )[:10]
+    
     context = {
-        'ai_insights': ai_insights,
-        'market_data': market_data,
+        'ai_analysis': ai_insights,
+        'top_gainers': top_gainers,
+        'top_losers': top_losers,
+        'market_overview': market_data,
         'portfolio_count': portfolio_assets.count(),
         'risk_tolerance': risk_tolerance
     }
     
     return render(request, 'market_insights.html', context)
+
+
+@csrf_exempt
+def refresh_crypto_data(request):
+    """Manually trigger crypto data refresh"""
+    if request.method == 'POST':
+        try:
+            from django.core.management import call_command
+            call_command('seed_crypto_data')
+            return JsonResponse({'success': True, 'message': 'Crypto data refreshed successfully'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
