@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Portfolio Analytics - Zelcry{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>📊 Portfolio Analytics</h2>
+    <p class="text-muted">Deep insights into your investment performance</p>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Total Value</h6>
+                    <h3>${{ total_value|floatformat:2 }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Total Invested</h6>
+                    <h3>${{ total_invested|floatformat:2 }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Profit/Loss</h6>
+                    <h3 class="{% if profit_loss >= 0 %}text-success{% else %}text-danger{% endif %}">
+                        ${{ profit_loss|floatformat:2 }}
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">ROI</h6>
+                    <h3 class="{% if roi >= 0 %}text-success{% else %}text-danger{% endif %}">
+                        {{ roi|floatformat:2 }}%
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Asset Allocation</h5>
+                    {% if asset_allocation %}
+                        {% for asset in asset_allocation %}
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between">
+                                    <span>{{ asset.name }}</span>
+                                    <span>{{ asset.percentage|floatformat:1 }}%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: {{ asset.percentage }}%"></div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No portfolio data available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="create_snapshot" value="1">
+            <button type="submit" class="btn btn-primary">📸 Create Portfolio Snapshot</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

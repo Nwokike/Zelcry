@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Watchlist - Zelcry{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>📋 My Watchlist</h2>
+    <p class="text-muted">Track cryptocurrencies you're interested in</p>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="row mt-4">
+        {% if watchlist_items %}
+            {% for item in watchlist_items %}
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ item.coin_name }} ({{ item.coin_symbol|upper }})</h5>
+                            <p class="card-text">
+                                Price: ${{ item.current_price|floatformat:2 }}
+                                <span class="{% if item.price_change_24h >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {{ item.price_change_24h|floatformat:2 }}%
+                                </span>
+                            </p>
+                            {% if item.notes %}
+                                <p class="small text-muted">{{ item.notes }}</p>
+                            {% endif %}
+                            <a href="{% url 'remove_from_watchlist' item.coin_id %}" class="btn btn-sm btn-danger">Remove</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <p class="text-center text-muted">Your watchlist is empty. Browse <a href="{% url 'cryptocurrencies' %}">cryptocurrencies</a> to add some!</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

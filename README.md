@@ -1,241 +1,389 @@
-# Zelcry - Sustainable Crypto Advisor
+# Zelcry - Professional Crypto Investment Platform
 
-A full-stack Django Progressive Web App (PWA) that helps crypto beginners make informed, sustainable investment decisions.
+![Zelcry](https://img.shields.io/badge/version-2.0-blue) ![Django](https://img.shields.io/badge/Django-5.2-green) ![License](https://img.shields.io/badge/license-MIT-orange)
 
-## Features
+> **AI-Powered Sustainable Cryptocurrency Investment Platform for Beginners**
 
-- 🔐 **User Authentication**: Secure signup/login with Django auth
-- 👤 **User Profiles**: Risk tolerance settings and XP points gamification
+Zelcry is a comprehensive crypto investment platform that helps users make informed, sustainable investment decisions powered by Zelcry AI (Groq) and real-time market data.
+
+---
+
+## 🌟 Features
+
+### Core Functionality
+- 🔐 **Secure Authentication**: User signup/login with Django authentication
+- 👤 **User Profiles**: Risk tolerance settings and gamified XP points system
 - 📊 **Portfolio Management**: Track crypto investments with real-time pricing
+- 💹 **Live Market Data**: Real-time data from CoinGecko API (top 100+ cryptocurrencies)
+- 📈 **Interactive Charts**: Beautiful Chart.js visualizations
+
+### Advanced Features (v2.0)
+- 🤖 **Zelcry AI**: Advanced AI advisor powered by Groq for personalized insights
+- 📰 **Real Crypto News**: Live news feed from CryptoCompare API
+- 📋 **Watchlist**: Track cryptocurrencies you're interested in
+- 🔔 **Price Alerts**: Get notified when prices reach your targets
+- 📊 **Portfolio Analytics**: Deep insights with ROI tracking and asset allocation
+- 🧠 **Market Insights**: AI-powered market analysis and recommendations
+
+### Sustainability & Impact
 - 🌍 **Impact Scoring**: Sustainability metrics (energy, governance, utility)
-- 💹 **Market Data**: Live data from CoinGecko API for top 100 cryptocurrencies
-- 📈 **Price Charts**: Interactive Chart.js visualizations
-- 🤖 **AI Advisor "Beacon"**: Keyword-based recommendations for sustainable crypto
-- 📱 **PWA Support**: Install as mobile app with offline capabilities
-- 🎨 **Mobile-First Design**: Bottom navigation, responsive layout
+- 🌱 **Eco-Friendly Focus**: Highlights sustainable cryptocurrencies
+- 📚 **Educational Content**: Helps beginners understand crypto responsibly
 
-## Tech Stack
+### Technical Features
+- 📱 **Progressive Web App (PWA)**: Install as mobile app with offline capabilities
+- 🎨 **Responsive Design**: Mobile-first bottom navigation
+- 🚀 **Performance Optimized**: Caching, connection pooling, efficient queries
+- 🔒 **Production Ready**: WhiteNoise for static files, Gunicorn for serving
 
-- **Backend**: Django 5.2
-- **Database**: PostgreSQL (production) / SQLite (local)
-- **PWA**: django-pwa
-- **API**: CoinGecko (free tier)
-- **Charts**: Chart.js
-- **Deployment**: Gunicorn + WhiteNoise
+---
 
-## Local Development Setup
+## 🛠️ Tech Stack
+
+| Component | Technology |
+|-----------|------------|
+| **Backend** | Django 5.2 |
+| **Database** | SQLite (dev) / PostgreSQL (Neon - production) |
+| **AI Engine** | Groq (Llama 3.3 70B) |
+| **Market Data** | CoinGecko API |
+| **News Feed** | CryptoCompare API |
+| **PWA** | django-pwa |
+| **Charts** | Chart.js |
+| **Deployment** | Gunicorn + WhiteNoise |
+
+---
+
+## 🚀 Quick Start (Local Development)
 
 ### Prerequisites
-
 - Python 3.11+
 - pip or uv package manager
 
 ### Installation
 
-1. Clone the repository
-```bash
-git clone <your-repo-url>
-cd zelcry
-```
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd zelcry
+   ```
 
-2. Install dependencies
-```bash
-pip install -r requirements.txt
-# OR if using uv
-uv pip install -r requirements.txt
-```
+2. **Create virtual environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3. Run migrations
-```bash
-python manage.py migrate
-```
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-4. Seed cryptocurrency data
-```bash
-python manage.py seed_crypto_data
-```
+4. **Configure environment**
+   ```bash
+   cp .env.example .env
+   # Edit .env and add your API keys
+   ```
 
-5. Create a superuser (optional)
-```bash
-python manage.py createsuperuser
-```
+5. **Run migrations**
+   ```bash
+   python manage.py migrate
+   ```
 
-6. Run the development server
-```bash
-python manage.py runserver 0.0.0.0:5000
-```
+6. **Seed cryptocurrency data**
+   ```bash
+   python manage.py seed_crypto_data
+   ```
 
-7. Visit `http://localhost:5000` in your browser
+7. **Create superuser (optional)**
+   ```bash
+   python manage.py createsuperuser
+   ```
 
-## PostgreSQL Database Setup (Production)
+8. **Run development server**
+   ```bash
+   python manage.py runserver 0.0.0.0:5000
+   ```
 
-### Option 1: Neon (Recommended)
+9. **Visit application**
+   ```
+   http://localhost:5000
+   ```
 
-1. Sign up for free at [neon.tech](https://neon.tech)
-2. Create a new project
-3. Copy the connection details
-4. Set environment variables:
+---
 
-```bash
-export DATABASE_URL="postgresql://..."
-export PGDATABASE="your_db_name"
-export PGUSER="your_username"
-export PGPASSWORD="your_password"
-export PGHOST="your_host.neon.tech"
-export PGPORT="5432"
-```
+## 🔑 Environment Variables
 
-### Option 2: ElephantSQL
-
-1. Sign up for free at [elephantsql.com](https://www.elephantsql.com)
-2. Create a new database instance
-3. Copy the connection URL
-4. Set environment variables (same as above)
-
-### Option 3: Replit PostgreSQL
-
-1. In your Replit project, use the built-in PostgreSQL database
-2. The environment variables will be automatically configured
-
-## Environment Variables
-
-Create a `.env` file in the root directory:
+Create a `.env` file with the following variables:
 
 ```env
+# Django Settings
 SECRET_KEY=your-secret-key-here
 DEBUG=True
 ALLOWED_HOSTS=*
 
-# For PostgreSQL (optional for local dev)
-DATABASE_URL=postgresql://user:password@host:port/dbname
-PGDATABASE=dbname
-PGUSER=username
-PGPASSWORD=password
-PGHOST=hostname
-PGPORT=5432
+# Zelcry AI - Groq (Required)
+GROQ_API_KEY=your-groq-api-key
+
+# Crypto News API (Optional - has free tier)
+CRYPTOCOMPARE_API_KEY=
+
+# Database (Leave empty for SQLite development)
+DATABASE_URL=
 ```
 
-## Deployment
+### Getting API Keys (All FREE!)
 
-### Deploy to Replit
+1. **Groq API** (Required):
+   - Sign up at [console.groq.com](https://console.groq.com)
+   - Go to API Keys section
+   - Create new API key
+   - Copy and paste into `.env`
 
-1. Push your code to Replit
-2. Set up PostgreSQL database in Replit
-3. Configure environment variables
-4. The app will automatically deploy using the Procfile
+2. **CryptoCompare API** (Optional):
+   - Sign up at [cryptocompare.com](https://www.cryptocompare.com/)
+   - Free tier: 100,000 calls/month
+   - Get API key from dashboard
 
-### Deploy to Other Platforms (Heroku, Railway, Render)
+---
 
-1. Ensure `requirements.txt` and `Procfile` are in the root
-2. Set environment variables in your platform
-3. Run migrations: `python manage.py migrate`
-4. Seed data: `python manage.py seed_crypto_data`
-5. Collect static files: `python manage.py collectstatic --noinput`
+## 📦 Production Deployment
 
-## Usage
+### Option 1: Oracle Cloud Free Tier + Neon (Recommended)
 
-### Creating an Account
+**Complete free deployment guide**: See [DEPLOYMENT.md](DEPLOYMENT.md)
 
-1. Click "Get Started" or "Sign Up"
-2. Enter username, email, password
-3. Select your risk tolerance (Low/Medium/High)
-4. Submit to create your account
+**Benefits:**
+- ✅ Completely FREE forever
+- ✅ 4 ARM CPUs, 24GB RAM (Oracle Cloud)
+- ✅ PostgreSQL database (Neon)
+- ✅ Excellent performance
+- ✅ No credit card required
 
-### Managing Your Portfolio
+### Option 2: Deploy to Replit
 
-1. Navigate to Dashboard
-2. Browse the top 100 cryptocurrencies
-3. Click "Add" to add a coin to your portfolio
-4. View your portfolio with real-time prices and 24h changes
-5. See impact scores for sustainable coins
+1. Import project to Replit
+2. Set environment variables in Secrets
+3. Run `python manage.py migrate`
+4. Run `python manage.py seed_crypto_data`
+5. Click Run
 
-### Using AI Advisor "Beacon"
+### Database Setup
 
-1. Click "AI Advisor" in bottom navigation
-2. Ask questions like:
-   - "What's the most sustainable coin?"
-   - "Tell me about Bitcoin"
-   - "What's trending today?"
-   - "Which coin has the best governance?"
+**Development (SQLite):**
+- Automatically configured
+- No setup needed
 
-### Viewing Crypto Details
+**Production (Neon PostgreSQL):**
 
-1. Click on any coin name in your portfolio
-2. View detailed impact score breakdown
-3. See 30-day price chart
-4. Read about the cryptocurrency
+1. Sign up at [neon.tech](https://neon.tech)
+2. Create new project
+3. Copy connection string (use pooled connection with `-pooler`)
+4. Set `DATABASE_URL` environment variable:
+   ```
+   DATABASE_URL=postgresql://user:pass@ep-xxx-pooler.region.aws.neon.tech/dbname?sslmode=require
+   ```
 
-## API Rate Limits
+---
 
-CoinGecko free tier limits:
-- 10-30 calls/minute
-- Consider implementing caching for production
-
-## Free Tier Deployment Checklist
-
-- ✅ SQLite for local development
-- ✅ PostgreSQL support for production (Neon/ElephantSQL free tiers)
-- ✅ CoinGecko free API (no key required)
-- ✅ WhiteNoise for static file serving (no CDN needed)
-- ✅ Gunicorn for production server
-- ✅ Minimal dependencies for fast cold starts
-
-## Project Structure
+## 📚 Project Structure
 
 ```
 zelcry/
 ├── zelcry/
-│   ├── core/                 # Main Django app
-│   │   ├── management/       # Custom management commands
+│   ├── core/                    # Main Django app
+│   │   ├── management/          # Custom commands
 │   │   │   └── commands/
 │   │   │       └── seed_crypto_data.py
-│   │   ├── migrations/
-│   │   ├── admin.py         # Admin panel configuration
-│   │   ├── apps.py
-│   │   ├── models.py        # Database models
-│   │   └── views.py         # View functions
-│   ├── settings.py          # Django settings
-│   ├── urls.py              # URL routing
-│   └── wsgi.py              # WSGI application
-├── templates/               # HTML templates
+│   │   ├── migrations/          # Database migrations
+│   │   ├── groq_ai.py          # Zelcry AI (Groq integration)
+│   │   ├── crypto_news.py      # Real crypto news integration
+│   │   ├── models.py           # Database models
+│   │   ├── views.py            # View functions
+│   │   └── urls.py             # Core URL routing
+│   ├── settings.py             # Django settings
+│   ├── urls.py                 # Main URL configuration
+│   └── wsgi.py                 # WSGI application
+├── templates/                   # HTML templates
 │   ├── base.html
-│   ├── index.html
 │   ├── dashboard.html
 │   ├── ai_advisor.html
+│   ├── watchlist.html
+│   ├── price_alerts.html
+│   ├── portfolio_analytics.html
+│   ├── market_insights.html
 │   └── ...
-├── static/                  # Static files
+├── static/                      # Static files
 │   ├── css/
 │   ├── js/
 │   └── icons/
 ├── manage.py
 ├── requirements.txt
-├── Procfile
+├── build.sh                     # Production build script
+├── DEPLOYMENT.md               # Detailed deployment guide
 └── README.md
 ```
 
-## Contributing
+---
 
-This is a beginner-friendly project. Feel free to:
-- Add more cryptocurrencies to the seed data
-- Improve the AI advisor logic
-- Enhance the UI/UX
-- Add more chart types
-- Implement portfolio analytics
+## 🎯 Key Features Explained
 
-## License
+### 1. Zelcry AI (Powered by Groq)
+Advanced AI advisor that provides:
+- Personalized crypto investment advice
+- Real-time market analysis
+- Portfolio recommendations based on risk tolerance
+- Educational explanations of crypto concepts
 
-MIT License
+### 2. Real-Time News Feed
+- Live crypto news from CryptoCompare
+- Filter by category (DeFi, NFT, Regulation, etc.)
+- Search functionality
+- Updates every 5 minutes (cached)
 
-## Acknowledgments
+### 3. Price Alerts
+- Set custom price targets
+- Notification when targets are reached
+- Track triggered alerts history
+- Support for above/below conditions
 
-- CoinGecko API for cryptocurrency data
-- Django community for excellent documentation
-- Chart.js for beautiful visualizations
+### 4. Portfolio Analytics
+- Real-time portfolio value tracking
+- ROI and profit/loss calculations
+- Asset allocation visualization
+- Portfolio snapshots for historical tracking
 
-## Support
-
-For issues or questions, please open an issue on GitHub or contact the maintainers.
+### 5. Sustainability Scoring
+- Energy efficiency ratings
+- Governance quality scores
+- Real-world utility assessment
+- Highlights eco-friendly cryptocurrencies
 
 ---
 
-**Disclaimer**: This app is for educational purposes. Always do your own research before investing in cryptocurrencies. Past performance does not guarantee future results.
+## 🔧 Management Commands
+
+```bash
+# Seed cryptocurrency data
+python manage.py seed_crypto_data
+
+# Create superuser
+python manage.py createsuperuser
+
+# Collect static files
+python manage.py collectstatic
+
+# Run migrations
+python manage.py migrate
+```
+
+---
+
+## 🌐 API Integrations
+
+### CoinGecko API (Free)
+- Market data for 100+ cryptocurrencies
+- Real-time prices and 24h changes
+- Historical price charts
+- No API key required
+
+### CryptoCompare API (Free Tier)
+- Real-time crypto news
+- 100,000 calls/month free
+- News filtering and search
+- Historical news data
+
+### Groq AI (Free Tier)
+- Llama 3.3 70B model
+- Generous free tier
+- Fast inference
+- Market analysis capabilities
+
+---
+
+## 💰 Cost Breakdown
+
+| Service | Free Tier | Cost |
+|---------|-----------|------|
+| **Oracle Cloud** | 4 ARM CPUs, 24GB RAM | **$0/month** |
+| **Neon PostgreSQL** | 10GB storage, 1 database | **$0/month** |
+| **Groq AI** | Generous limits | **$0/month** |
+| **CoinGecko API** | Full access | **$0/month** |
+| **CryptoCompare** | 100K calls/month | **$0/month** |
+| **TOTAL** | - | **$0/month** ✨ |
+
+**You can run a professional crypto platform for FREE!**
+
+---
+
+## 🔐 Security Best Practices
+
+✅ **Implemented:**
+- Django security middleware
+- CSRF protection
+- Password validation
+- Secure session management
+- Environment variable configuration
+- SQL injection prevention (Django ORM)
+
+🔒 **For Production:**
+1. Set `DEBUG=False`
+2. Use strong `SECRET_KEY`
+3. Configure `ALLOWED_HOSTS`
+4. Enable HTTPS (SSL certificate)
+5. Regular security updates
+6. Database backups
+
+---
+
+## 🤝 Contributing
+
+This is a production-ready startup project. For contributions:
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open Pull Request
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- **CoinGecko** for cryptocurrency market data
+- **CryptoCompare** for real-time crypto news
+- **Groq** for lightning-fast AI inference
+- **Neon** for serverless PostgreSQL
+- **Oracle Cloud** for generous free tier
+- **Django Community** for excellent documentation
+
+---
+
+## 📞 Support
+
+For issues, questions, or feature requests:
+- Open an issue on GitHub
+- Check [DEPLOYMENT.md](DEPLOYMENT.md) for deployment help
+- Review Django documentation for framework questions
+
+---
+
+## 🚀 Roadmap
+
+- [ ] Email notifications for price alerts
+- [ ] Mobile app (React Native)
+- [ ] Advanced charting with TradingView
+- [ ] Social features (follow other investors)
+- [ ] DeFi integration
+- [ ] NFT portfolio tracking
+
+---
+
+**Built with ❤️ for the crypto community**
+
+*Disclaimer: This platform is for educational purposes. Always do your own research (DYOR) before investing in cryptocurrencies. Past performance does not guarantee future results.*

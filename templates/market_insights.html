@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Market Insights - Zelcry{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>🧠 Zelcry AI Market Insights</h2>
+    <p class="text-muted">AI-powered analysis and personalized recommendations</p>
+    
+    <div class="row mt-4">
+        {% if ai_insights %}
+            <div class="col-md-12">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5>AI Market Analysis</h5>
+                        <p class="lead">{{ ai_insights|linebreaks }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        
+        <div class="col-md-12 mt-4">
+            <h4>Top Market Movers</h4>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Coin</th>
+                            <th>Price</th>
+                            <th>24h Change</th>
+                            <th>Market Cap</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for coin in market_data %}
+                            <tr>
+                                <td>{{ coin.name }}</td>
+                                <td>${{ coin.current_price|floatformat:2 }}</td>
+                                <td class="{% if coin.price_change_percentage_24h >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {{ coin.price_change_percentage_24h|floatformat:2 }}%
+                                </td>
+                                <td>${{ coin.market_cap|floatformat:0 }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="col-md-12 mt-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Your Profile</h5>
+                    <p>Portfolio Size: <strong>{{ portfolio_count }} cryptocurrencies</strong></p>
+                    <p>Risk Tolerance: <strong>{{ risk_tolerance }}</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

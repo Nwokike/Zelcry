@@ -85,13 +85,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'zelcry.wsgi.application'
 
 
-# Database
+# Database Configuration
+# SQLite for development, PostgreSQL (Neon) for production
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-if 'RENDER' in os.environ:
+if os.environ.get('DATABASE_URL') and 'neon' in os.environ.get('DATABASE_URL', '').lower():
     DATABASES = {
         'default': dj_database_url.config(
-            conn_max_age=600,
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=300,
+            conn_health_checks=True,
             ssl_require=True
         )
     }
@@ -153,9 +156,11 @@ LOGOUT_REDIRECT_URL = '/'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# AI Configuration
+# AI Configuration - Zelcry AI (Groq)
 GROQ_API_KEY = config('GROQ_API_KEY', default='')
-HUGGING_FACE_API_TOKEN = config('HUGGING_FACE_API_TOKEN', default='')
+
+# Crypto News API
+CRYPTOCOMPARE_API_KEY = config('CRYPTOCOMPARE_API_KEY', default='')
 
 # Replit environment configuration
 REPLIT_ENV = 'REPL_ID' in os.environ

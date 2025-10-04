@@ -36,4 +36,10 @@ urlpatterns = [
     path('news/', views.news, name='news'),
     path('terms/', views.terms_of_service, name='terms_of_service'),
     path('privacy/', views.privacy_policy, name='privacy_policy'),
+    path('watchlist/', views.watchlist, name='watchlist'),
+    path('watchlist/remove/<str:coin_id>/', views.remove_from_watchlist, name='remove_from_watchlist'),
+    path('price-alerts/', views.price_alerts, name='price_alerts'),
+    path('price-alerts/delete/<int:alert_id>/', views.delete_alert, name='delete_alert'),
+    path('portfolio-analytics/', views.portfolio_analytics, name='portfolio_analytics'),
+    path('market-insights/', views.market_insights, name='market_insights'),
 ]

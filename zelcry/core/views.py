@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, F, DecimalField
 from .models import UserProfile, PortfolioAsset, CryptoAssetDetails, ChatMessage
-from .groq_ai import get_groq_response
+from .groq_ai import get_zelcry_ai_response, get_market_analysis
 import requests
 import json
 import uuid
@@ -318,12 +318,15 @@ def crypto_details(request, coin_id):
     
     return render(request, 'crypto_details.html', context)
 
-@login_required
 def ai_advisor(request):
-    portfolio_assets = PortfolioAsset.objects.filter(user=request.user)
-    portfolio_count = portfolio_assets.count()
-    risk_tolerance = request.user.profile.risk_tolerance
-    
+    if request.user.is_authenticated:
+        portfolio_assets = PortfolioAsset.objects.filter(user=request.user)
+        portfolio_count = portfolio_assets.count()
+        risk_tolerance = request.user.profile.risk_tolerance
+    else:
+        portfolio_count = 0
+        risk_tolerance = 'Medium'
+
     context = {
         'portfolio_count': portfolio_count,
         'risk_tolerance': risk_tolerance,
@@ -356,7 +359,7 @@ def ai_advisor_query(request):
             Focus on sustainable crypto investing. Be concise and helpful.
             """
             
-            response = get_groq_response(message, context)
+            response = get_zelcry_ai_response(message, context)
             
             request.user.profile.xp_points += 2
             request.user.profile.save()
@@ -370,7 +373,7 @@ def ai_advisor_query(request):
 
 
 import uuid
-from .groq_ai import get_groq_response
+from .groq_ai import get_zelcry_ai_response, get_market_analysis
 from .models import ChatMessage
 
 @csrf_exempt
@@ -383,46 +386,68 @@ def toggle_theme(request):
         return JsonResponse({'success': True})
     return JsonResponse({'success': False})
 
+@csrf_exempt
 def guest_chat(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        message = data.get('message', '')
-        
-        if request.user.is_authenticated:
-            user_chats = ChatMessage.objects.filter(user=request.user).count()
-            response = get_groq_response(message, f"User has {user_chats} previous chats")
-            
-            ChatMessage.objects.create(
-                user=request.user,
-                message=message,
-                response=response
-            )
-        else:
-            session_id = request.session.get('guest_chat_id')
-            if not session_id:
-                session_id = str(uuid.uuid4())
-                request.session['guest_chat_id'] = session_id
-            
-            guest_chat_count = request.session.get('guest_chat_count', 0)
-            
-            if guest_chat_count >= 1:
+        try:
+            data = json.loads(request.body)
+            message = data.get('message', '')
+
+            if not message:
+                return JsonResponse({'error': 'Message is required'}, status=400)
+
+            if request.user.is_authenticated:
+                user_chats = ChatMessage.objects.filter(user=request.user).count()
+                response = get_zelcry_ai_response(message, f"User: {request.user.username}, Portfolio size: {request.user.portfolio_assets.count()} cryptocurrencies")
+
+                ChatMessage.objects.create(
+                    user=request.user,
+                    message=message,
+                    response=response
+                )
+
                 return JsonResponse({
-                    'response': "You've used your free AI chat! Sign up to continue chatting with Beacon.",
-                    'limit_reached': True
+                    'response': response,
+                    'limit_reached': False,
+                    'messages_remaining': None
                 })
-            
-            response = get_groq_response(message, "This is a guest user - encourage them to sign up")
-            
-            ChatMessage.objects.create(
-                session_id=session_id,
-                message=message,
-                response=response
-            )
-            
-            request.session['guest_chat_count'] = guest_chat_count + 1
-        
-        return JsonResponse({'response': response, 'limit_reached': False})
-    
+            else:
+                session_id = request.session.get('guest_chat_id')
+                if not session_id:
+                    session_id = str(uuid.uuid4())
+                    request.session['guest_chat_id'] = session_id
+
+                guest_chat_count = request.session.get('guest_chat_count', 0)
+
+                if guest_chat_count >= 3:
+                    return JsonResponse({
+                        'response': "You've reached your limit of 3 free AI chats! Create a free account to continue chatting with Zelcry AI and unlock unlimited conversations plus powerful portfolio tracking features.",
+                        'limit_reached': True,
+                        'messages_remaining': 0
+                    })
+
+                response = get_zelcry_ai_response(
+                    message,
+                    f"This is a guest user trying out the app. They have {3 - guest_chat_count} messages left. Be helpful and encourage them to sign up after their trial."
+                )
+
+                ChatMessage.objects.create(
+                    session_id=session_id,
+                    message=message,
+                    response=response
+                )
+
+                request.session['guest_chat_count'] = guest_chat_count + 1
+                messages_remaining = 3 - (guest_chat_count + 1)
+
+                return JsonResponse({
+                    'response': response,
+                    'limit_reached': False,
+                    'messages_remaining': messages_remaining
+                })
+        except Exception as e:
+            return JsonResponse({'error': 'An error occurred. Please try again.'}, status=500)
+
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 def cryptocurrencies(request):
@@ -467,6 +492,11 @@ def cryptocurrencies(request):
     return render(request, 'cryptocurrencies.html', context)
 
 def news(request):
+    from .crypto_news import get_crypto_news, get_trending_news
+    
+    category_filter = request.GET.get('category', '')
+    search_query = request.GET.get('search', '')
+    
     try:
         response = requests.get('https://api.coingecko.com/api/v3/coins/markets', params={
             'vs_currency': 'usd',
@@ -488,36 +518,28 @@ def news(request):
     except:
         top_movers = []
     
-    news_items = [
-        {
-            'title': 'Cryptocurrency Market Update',
-            'description': 'Latest trends and insights from the crypto market. Track top performers and emerging opportunities.',
-            'time': 'Updated daily',
-            'category': 'Market Analysis'
-        },
-        {
-            'title': 'Sustainable Crypto Initiatives',
-            'description': 'Major cryptocurrencies are transitioning to eco-friendly consensus mechanisms to reduce carbon footprint.',
-            'time': 'Recent',
-            'category': 'Sustainability'
-        },
-        {
-            'title': 'DeFi Innovation Continues',
-            'description': 'Decentralized finance platforms are introducing new features for better user experience and security.',
-            'time': 'This week',
-            'category': 'Technology'
-        },
-        {
-            'title': 'Regulatory Developments',
-            'description': 'Global regulators are working on frameworks to ensure crypto market stability and investor protection.',
-            'time': 'Ongoing',
-            'category': 'Regulation'
-        },
-    ]
+    news_items = get_crypto_news(limit=30)
+    
+    if category_filter:
+        news_items = [n for n in news_items if category_filter.lower() in [c.lower() for c in n.get('categories', [])]]
+    
+    if search_query:
+        query_lower = search_query.lower()
+        news_items = [n for n in news_items if 
+                     query_lower in n['title'].lower() or 
+                     query_lower in n.get('body', '').lower()]
+    
+    available_categories = set()
+    for news in news_items:
+        available_categories.update(news.get('categories', []))
+    available_categories.discard('')
     
     context = {
         'news_items': news_items,
         'top_movers': top_movers,
+        'available_categories': sorted(list(available_categories)),
+        'selected_category': category_filter,
+        'search_query': search_query,
     }
     
     return render(request, 'news.html', context)
@@ -527,3 +549,232 @@ def terms_of_service(request):
 
 def privacy_policy(request):
     return render(request, 'privacy_policy.html')
+
+@login_required
+def watchlist(request):
+    from .models import Watchlist
+    
+    if request.method == 'POST':
+        coin_id = request.POST.get('coin_id')
+        coin_name = request.POST.get('coin_name')
+        coin_symbol = request.POST.get('coin_symbol')
+        notes = request.POST.get('notes', '')
+        
+        Watchlist.objects.get_or_create(
+            user=request.user,
+            coin_id=coin_id,
+            defaults={
+                'coin_name': coin_name,
+                'coin_symbol': coin_symbol,
+                'notes': notes
+            }
+        )
+        
+        request.user.profile.xp_points += 5
+        request.user.profile.save()
+        messages.success(request, f'Added {coin_name} to your watchlist! +5 XP')
+        return redirect('watchlist')
+    
+    watchlist_items = Watchlist.objects.filter(user=request.user)
+    
+    for item in watchlist_items:
+        try:
+            price_response = requests.get(f'https://api.coingecko.com/api/v3/simple/price', params={
+                'ids': item.coin_id,
+                'vs_currencies': 'usd',
+                'include_24hr_change': True
+            }, timeout=5)
+            if price_response.status_code == 200:
+                data = price_response.json().get(item.coin_id, {})
+                item.current_price = data.get('usd', 0)
+                item.price_change_24h = data.get('usd_24h_change', 0)
+        except:
+            item.current_price = 0
+            item.price_change_24h = 0
+    
+    context = {'watchlist_items': watchlist_items}
+    return render(request, 'watchlist.html', context)
+
+
+@login_required
+def remove_from_watchlist(request, coin_id):
+    from .models import Watchlist
+    Watchlist.objects.filter(user=request.user, coin_id=coin_id).delete()
+    messages.success(request, 'Removed from watchlist')
+    return redirect('watchlist')
+
+
+@login_required
+def price_alerts(request):
+    from .models import PriceAlert
+    
+    if request.method == 'POST':
+        coin_id = request.POST.get('coin_id')
+        coin_name = request.POST.get('coin_name')
+        target_price = request.POST.get('target_price')
+        condition = request.POST.get('condition')
+        
+        PriceAlert.objects.create(
+            user=request.user,
+            coin_id=coin_id,
+            coin_name=coin_name,
+            target_price=target_price,
+            condition=condition
+        )
+        
+        request.user.profile.xp_points += 10
+        request.user.profile.save()
+        messages.success(request, f'Price alert created for {coin_name}! +10 XP')
+        return redirect('price_alerts')
+    
+    alerts = PriceAlert.objects.filter(user=request.user, is_active=True)
+    
+    for alert in alerts:
+        try:
+            price_response = requests.get(f'https://api.coingecko.com/api/v3/simple/price', params={
+                'ids': alert.coin_id,
+                'vs_currencies': 'usd'
+            }, timeout=5)
+            if price_response.status_code == 200:
+                data = price_response.json().get(alert.coin_id, {})
+                alert.current_price = data.get('usd', 0)
+                
+                if alert.condition == 'above' and alert.current_price >= float(alert.target_price):
+                    alert.triggered = True
+                    alert.triggered_at = datetime.now()
+                    alert.is_active = False
+                    alert.save()
+                elif alert.condition == 'below' and alert.current_price <= float(alert.target_price):
+                    alert.triggered = True
+                    alert.triggered_at = datetime.now()
+                    alert.is_active = False
+                    alert.save()
+        except:
+            alert.current_price = 0
+    
+    triggered_alerts = PriceAlert.objects.filter(user=request.user, triggered=True).order_by('-triggered_at')[:10]
+    
+    context = {
+        'active_alerts': alerts,
+        'triggered_alerts': triggered_alerts
+    }
+    return render(request, 'price_alerts.html', context)
+
+
+@login_required
+def delete_alert(request, alert_id):
+    from .models import PriceAlert
+    PriceAlert.objects.filter(user=request.user, id=alert_id).delete()
+    messages.success(request, 'Alert deleted')
+    return redirect('price_alerts')
+
+
+@login_required
+def portfolio_analytics(request):
+    from .models import PortfolioAsset, PortfolioSnapshot
+    
+    portfolio_assets = PortfolioAsset.objects.filter(user=request.user)
+    snapshots = PortfolioSnapshot.objects.filter(user=request.user).order_by('-created_at')[:30]
+    
+    total_value = 0
+    total_invested = 0
+    asset_allocation = []
+    
+    for asset in portfolio_assets:
+        try:
+            price_response = requests.get(f'https://api.coingecko.com/api/v3/simple/price', params={
+                'ids': asset.coin_id,
+                'vs_currencies': 'usd'
+            }, timeout=5)
+            if price_response.status_code == 200:
+                data = price_response.json().get(asset.coin_id, {})
+                current_price = data.get('usd', 0)
+                asset_value = float(asset.quantity) * current_price
+                total_value += asset_value
+                invested = float(asset.quantity) * float(asset.purchase_price)
+                total_invested += invested
+                
+                asset_allocation.append({
+                    'name': asset.coin_name,
+                    'value': asset_value,
+                    'percentage': 0
+                })
+        except:
+            pass
+    
+    for allocation in asset_allocation:
+        allocation['percentage'] = (allocation['value'] / total_value * 100) if total_value > 0 else 0
+    
+    profit_loss = total_value - total_invested
+    roi = ((profit_loss / total_invested) * 100) if total_invested > 0 else 0
+    
+    if request.method == 'POST' and request.POST.get('create_snapshot'):
+        PortfolioSnapshot.objects.create(
+            user=request.user,
+            total_value=Decimal(str(total_value)),
+            total_invested=Decimal(str(total_invested)),
+            profit_loss=Decimal(str(profit_loss)),
+            roi_percentage=Decimal(str(roi))
+        )
+        messages.success(request, 'Portfolio snapshot created!')
+        return redirect('portfolio_analytics')
+    
+    snapshot_data = {
+        'labels': [s.created_at.strftime('%m/%d') for s in reversed(snapshots)],
+        'values': [float(s.total_value) for s in reversed(snapshots)]
+    }
+    
+    context = {
+        'total_value': total_value,
+        'total_invested': total_invested,
+        'profit_loss': profit_loss,
+        'roi': roi,
+        'asset_allocation': asset_allocation,
+        'snapshots': snapshots,
+        'snapshot_data': json.dumps(snapshot_data)
+    }
+    
+    return render(request, 'portfolio_analytics.html', context)
+
+
+@login_required
+def market_insights(request):
+    """AI-powered market insights and personalized recommendations"""
+    try:
+        response = requests.get('https://api.coingecko.com/api/v3/coins/markets', params={
+            'vs_currency': 'usd',
+            'order': 'market_cap_desc',
+            'per_page': 20,
+            'page': 1,
+            'sparkline': False,
+            'price_change_percentage': '24h'
+        }, timeout=10)
+        
+        if response.status_code == 200:
+            market_data = response.json()
+            
+            market_summary = []
+            for coin in market_data[:10]:
+                market_summary.append(f"{coin['name']}: ${coin['current_price']:.2f} ({coin.get('price_change_percentage_24h', 0):.2f}%)")
+            
+            market_text = "\n".join(market_summary)
+            
+            ai_insights = get_market_analysis(market_text)
+        else:
+            ai_insights = None
+            market_data = []
+    except:
+        ai_insights = None
+        market_data = []
+    
+    portfolio_assets = PortfolioAsset.objects.filter(user=request.user)
+    risk_tolerance = request.user.profile.risk_tolerance
+    
+    context = {
+        'ai_insights': ai_insights,
+        'market_data': market_data,
+        'portfolio_count': portfolio_assets.count(),
+        'risk_tolerance': risk_tolerance
+    }
+    
+    return render(request, 'market_insights.html', context)

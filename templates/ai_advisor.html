@@ -4,58 +4,77 @@
 
 {% block extra_css %}
 <style>
-    .chat-header {
-        text-align: center;
-        padding: 1.5rem;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-        color: white;
-        border-radius: 1rem;
-        margin-bottom: 1.5rem;
+    .ai-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: calc(var(--spacing) * 3);
     }
 
-    .chat-box {
-        min-height: 400px;
-        max-height: 500px;
+    .ai-header {
+        text-align: center;
+        padding: calc(var(--spacing) * 4) calc(var(--spacing) * 3);
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        border-radius: var(--radius-lg);
+        margin-bottom: calc(var(--spacing) * 3);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .ai-header h1 {
+        color: white;
+        font-size: 2rem;
+        margin-bottom: calc(var(--spacing) * 1.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: calc(var(--spacing) * 1.5);
+    }
+
+    .ai-header p {
+        color: rgba(255, 255, 255, 0.95);
+        font-size: 1rem;
+        margin: 0;
+    }
+
+    .message-limit-banner {
+        background: var(--color-amber-50);
+        border: 1px solid var(--warning);
+        color: var(--color-amber-900);
+        padding: calc(var(--spacing) * 2);
+        border-radius: var(--radius-md);
+        margin-bottom: calc(var(--spacing) * 2);
+        text-align: center;
+        font-weight: 600;
+    }
+
+    [data-theme="dark"] .message-limit-banner {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+    }
+
+    .chat-container {
+        background: var(--bg-card);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+    }
+
+    .chat-messages {
+        height: 500px;
         overflow-y: auto;
-        margin-bottom: 1rem;
+        padding: calc(var(--spacing) * 3);
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--spacing) * 2);
     }
 
     .message {
-        margin-bottom: 1rem;
-        padding: 1rem;
-        border-radius: 0.75rem;
-        max-width: 85%;
-        animation: fadeIn 0.3s;
-    }
-
-    .message-user {
-        background: var(--primary);
-        color: white;
-        margin-left: auto;
-    }
-
-    .message-ai {
-        background: var(--bg-secondary);
-        border: 1px solid var(--border);
-    }
-
-    .chat-input-wrapper {
-        position: sticky;
-        bottom: calc(80px + env(safe-area-inset-bottom));
-        background: var(--bg);
-        padding: 1rem;
-        border-top: 1px solid var(--border);
         display: flex;
-        gap: 0.75rem;
-        margin-left: -1rem;
-        margin-right: -1rem;
+        gap: calc(var(--spacing) * 1.5);
+        animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .chat-input-wrapper input {
-        flex: 1;
-    }
-
-    @keyframes fadeIn {
+    @keyframes slideIn {
         from {
             opacity: 0;
             transform: translateY(10px);
@@ -66,98 +85,261 @@
         }
     }
 
+    .message-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .message-user .message-avatar {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+    }
+
+    .message-ai .message-avatar {
+        background: var(--bg-secondary);
+    }
+
+    .message-content {
+        flex: 1;
+        padding: calc(var(--spacing) * 2);
+        border-radius: var(--radius-md);
+        line-height: 1.6;
+    }
+
+    .message-user .message-content {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: white;
+        margin-left: auto;
+    }
+
+    .message-ai .message-content {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+
+    .message-user {
+        flex-direction: row-reverse;
+    }
+
     .suggestions {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
-        margin: 1rem 0;
+        gap: calc(var(--spacing) * 1);
+        padding: calc(var(--spacing) * 2);
+        background: var(--bg-secondary);
+        border-radius: var(--radius-md);
     }
 
     .suggestion-btn {
-        background: var(--bg-secondary);
-        border: 1px solid var(--border);
-        padding: 0.5rem 1rem;
-        border-radius: 9999px;
+        padding: calc(var(--spacing) * 1.25) calc(var(--spacing) * 2);
+        background: white;
+        border: 1px solid var(--border-medium);
+        border-radius: var(--radius-full);
         font-size: 0.875rem;
+        font-weight: 600;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .suggestion-btn {
+        background: var(--bg-card);
     }
 
     .suggestion-btn:hover {
         background: var(--primary);
         color: white;
         border-color: var(--primary);
+        transform: translateY(-1px);
+    }
+
+    .chat-input-container {
+        padding: calc(var(--spacing) * 2);
+        background: var(--bg-secondary);
+        border-top: 1px solid var(--border-light);
+        display: flex;
+        gap: calc(var(--spacing) * 1.5);
+    }
+
+    .chat-input {
+        flex: 1;
+        padding: calc(var(--spacing) * 1.75);
+        border: 2px solid var(--border-light);
+        border-radius: var(--radius-md);
+        font-size: 1rem;
+        background: var(--bg-card);
+        color: var(--text-primary);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .chat-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+    }
+
+    .send-btn {
+        padding: calc(var(--spacing) * 1.75) calc(var(--spacing) * 3);
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .send-btn:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .send-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .loading-indicator {
+        display: inline-flex;
+        gap: calc(var(--spacing) * 0.5);
+    }
+
+    .loading-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--text-tertiary);
+        animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    .loading-dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .loading-dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes pulse {
+        0%, 80%, 100% {
+            opacity: 0.3;
+            transform: scale(0.8);
+        }
+        40% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .ai-container {
+            padding: calc(var(--spacing) * 2);
+        }
+
+        .ai-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .chat-messages {
+            height: 400px;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="top-bar">
-    <div class="top-bar-content">
-        <a href="{% url 'dashboard' %}" class="back-btn">←</a>
-        <h1 class="top-bar-title">AI Advisor</h1>
-        <button class="theme-toggle">🌙</button>
+<div class="ai-container">
+    <div class="ai-header">
+        <h1><span>🤖</span> Zelcry AI Advisor</h1>
+        <p>Your intelligent crypto investment assistant powered by advanced AI</p>
     </div>
-</div>
 
-<div class="content-area">
-    <div class="container">
-        <div class="chat-header">
-            <h2 style="margin-bottom: 0.5rem;">🤖 Beacon</h2>
-            <p style="opacity: 0.9; font-size: 0.875rem;">Your AI Crypto Advisor powered by Groq</p>
-        </div>
+    {% if not user.is_authenticated %}
+    <div class="message-limit-banner" id="messageLimitBanner">
+        You have <strong id="messagesRemaining">3</strong> free AI chats to try! Sign up for unlimited conversations.
+    </div>
+    {% endif %}
 
-        <div class="chat-box" id="chat-box">
+    <div class="chat-container">
+        <div class="chat-messages" id="chatMessages">
             <div class="message message-ai">
-                <strong>Beacon:</strong> Hi {{ user.username }}! I'm powered by advanced AI to help you navigate the crypto world. Ask me about:
-                <ul style="margin: 0.75rem 0; padding-left: 1.5rem;">
-                    <li>Portfolio analysis & recommendations</li>
-                    <li>Sustainable cryptocurrency options</li>
-                    <li>Market trends & insights</li>
-                    <li>Any crypto you're curious about</li>
-                </ul>
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <strong>Zelcry AI:</strong> Hello{% if user.is_authenticated %} {{ user.username }}{% endif %}! I'm your AI crypto advisor. I can help you with:
+                    <ul style="margin-top: calc(var(--spacing) * 1); padding-left: calc(var(--spacing) * 2.5);">
+                        <li>Portfolio analysis and recommendations</li>
+                        <li>Sustainable cryptocurrency insights</li>
+                        <li>Market trends and news</li>
+                        <li>General crypto education</li>
+                    </ul>
+                    What would you like to know?
+                </div>
             </div>
-            
+
             <div class="suggestions" id="suggestions">
-                <button class="suggestion-btn" onclick="askQuestion('Analyze my portfolio')">📊 Analyze my portfolio</button>
-                <button class="suggestion-btn" onclick="askQuestion('What are the most sustainable cryptos?')">🌱 Sustainable cryptos</button>
-                <button class="suggestion-btn" onclick="askQuestion('Tell me about Bitcoin')">₿ Tell me about Bitcoin</button>
-                <button class="suggestion-btn" onclick="askQuestion('What is trending today?')">📈 What's trending?</button>
+                <button class="suggestion-btn" onclick="sendSuggestion('What are the most sustainable cryptocurrencies?')">
+                    🌱 Sustainable cryptos
+                </button>
+                <button class="suggestion-btn" onclick="sendSuggestion('Tell me about Bitcoin vs Ethereum')">
+                    ⚖️ Bitcoin vs Ethereum
+                </button>
+                <button class="suggestion-btn" onclick="sendSuggestion('How do I start investing in crypto?')">
+                    🎯 Getting started
+                </button>
+                <button class="suggestion-btn" onclick="sendSuggestion('What is trending today in crypto?')">
+                    📈 Market trends
+                </button>
             </div>
         </div>
-    </div>
-</div>
 
-<div class="chat-input-wrapper">
-    <input type="text" id="chat-input" class="input-field" placeholder="Ask Beacon anything about crypto..." />
-    <button onclick="sendMessage()" class="btn btn-primary" id="send-btn">Send</button>
+        <div class="chat-input-container">
+            <input
+                type="text"
+                id="chatInput"
+                class="chat-input"
+                placeholder="Ask me anything about crypto..."
+                autocomplete="off"
+            />
+            <button id="sendBtn" class="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
 </div>
 
 <script>
-const chatBox = document.getElementById('chat-box');
-const chatInput = document.getElementById('chat-input');
-const sendBtn = document.getElementById('send-btn');
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const sendBtn = document.getElementById('sendBtn');
+const suggestions = document.getElementById('suggestions');
+const messageLimitBanner = document.getElementById('messageLimitBanner');
+const messagesRemaining = document.getElementById('messagesRemaining');
+const isAuthenticated = {{ user.is_authenticated|lower }};
 
-function askQuestion(question) {
-    chatInput.value = question;
+function sendSuggestion(text) {
+    chatInput.value = text;
     sendMessage();
 }
 
 async function sendMessage() {
     const message = chatInput.value.trim();
     if (!message) return;
-    
-    chatBox.innerHTML += `<div class="message message-user">${message}</div>`;
+
+    addMessage(message, 'user');
     chatInput.value = '';
-    chatBox.scrollTop = chatBox.scrollHeight;
-    
+    suggestions.style.display = 'none';
+
     sendBtn.disabled = true;
-    sendBtn.textContent = '...';
-    
-    chatBox.innerHTML += `<div class="message message-ai"><div class="spinner"></div></div>`;
-    
+    sendBtn.textContent = 'Thinking...';
+
+    const loadingMessage = addLoadingMessage();
+
     try {
-        const response = await fetch('/ai-advisor/query/', {
+        const response = await fetch('/guest-chat/', {
             method: 'POST',
             headers: {
                 'X-CSRFToken': '{{ csrf_token }}',
@@ -165,25 +347,101 @@ async function sendMessage() {
             },
             body: JSON.stringify({ message })
         });
-        
+
         const data = await response.json();
-        
-        chatBox.removeChild(chatBox.lastChild);
-        chatBox.innerHTML += `<div class="message message-ai"><strong>Beacon:</strong> ${data.response}</div>`;
+
+        if (loadingMessage) {
+            loadingMessage.remove();
+        }
+
+        if (data.error) {
+            addMessage('Sorry, something went wrong. Please try again.', 'ai');
+        } else {
+            addMessage(data.response, 'ai');
+
+            if (!isAuthenticated && data.messages_remaining !== undefined && data.messages_remaining !== null) {
+                messagesRemaining.textContent = data.messages_remaining;
+
+                if (data.limit_reached) {
+                    messageLimitBanner.innerHTML = `
+                        <strong>Trial ended!</strong> You've used all 3 free messages.
+                        <a href="/signup/" style="color: var(--primary); text-decoration: underline;">Sign up free</a>
+                        to continue chatting!
+                    `;
+                    chatInput.disabled = true;
+                    sendBtn.disabled = true;
+                    sendBtn.textContent = 'Limit Reached';
+                }
+            }
+        }
     } catch (error) {
-        chatBox.removeChild(chatBox.lastChild);
-        chatBox.innerHTML += `<div class="message message-ai"><strong>Beacon:</strong> Sorry, I had trouble connecting. Please try again.</div>`;
+        if (loadingMessage) {
+            loadingMessage.remove();
+        }
+        addMessage('Connection error. Please check your internet and try again.', 'ai');
     }
-    
+
     sendBtn.disabled = false;
     sendBtn.textContent = 'Send';
-    chatBox.scrollTop = chatBox.scrollHeight;
-    
-    document.getElementById('suggestions').style.display = 'none';
 }
 
-chatInput?.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') sendMessage();
+function addMessage(text, sender) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message message-${sender}`;
+
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = sender === 'user' ? '👤' : '🤖';
+
+    const content = document.createElement('div');
+    content.className = 'message-content';
+
+    if (sender === 'ai') {
+        content.innerHTML = `<strong>Zelcry AI:</strong> ${text}`;
+    } else {
+        content.textContent = text;
+    }
+
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(content);
+
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    return messageDiv;
+}
+
+function addLoadingMessage() {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message message-ai';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = '🤖';
+
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    content.innerHTML = `
+        <div class="loading-indicator">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+        </div>
+    `;
+
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(content);
+
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    return messageDiv;
+}
+
+chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !sendBtn.disabled) {
+        sendMessage();
+    }
 });
 </script>
 {% endblock %}
