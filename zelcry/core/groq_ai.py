@@ -7,6 +7,9 @@ def get_zelcry_ai_response(message, context="", conversation_history=None):
     Provides personalized crypto investment insights and market analysis
     """
     try:
+        if not settings.GROQ_API_KEY or settings.GROQ_API_KEY.strip() == '':
+            return "🔑 Zelcry AI needs a Groq API key to work. Please add your GROQ_API_KEY to Replit Secrets. Get a free API key at console.groq.com"
+        
         client = Groq(api_key=settings.GROQ_API_KEY)
         
         system_message = """You are Zelcry AI, the advanced AI advisor for Zelcry - a professional crypto investment platform. 
@@ -41,7 +44,10 @@ Tone: Professional, knowledgeable, supportive, and trustworthy."""
         
         return chat_completion.choices[0].message.content
     except Exception as e:
-        return "Zelcry AI is temporarily unavailable. Please try again in a moment."
+        error_msg = str(e).lower()
+        if 'api key' in error_msg or 'invalid' in error_msg or 'authentication' in error_msg:
+            return "🔑 Invalid Groq API key. Please check your GROQ_API_KEY in Replit Secrets. Get a free key at console.groq.com"
+        return f"⚠️ Zelcry AI error: {str(e)[:100]}. Please check your GROQ_API_KEY in Replit Secrets."
 
 def get_market_analysis(market_data):
     """Get AI-powered market analysis"""

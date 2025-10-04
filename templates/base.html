@@ -334,7 +334,6 @@
         {% block content %}{% endblock %}
     </main>
 
-    {% if user.is_authenticated or request.path == '/' %}
     <nav class="bottom-nav">
         <div class="bottom-nav-content">
             {% if user.is_authenticated %}
@@ -378,7 +377,6 @@
             {% endif %}
         </div>
     </nav>
-    {% endif %}
 
     <script>
         const themeToggle = document.getElementById('themeToggle');
