@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +15,6 @@
     <link rel="icon" type="image/png" sizes="192x192" href="{% static 'icons/icon-192x192.png' %}">
     <link rel="icon" type="image/png" sizes="512x512" href="{% static 'icons/icon-512x512.png' %}">
     
-    {% load static %}
     {% block extra_css %}{% endblock %}
 </head>
 <body class="{% if user.is_authenticated and user.profile.theme == 'dark' %}dark-theme{% endif %}">
