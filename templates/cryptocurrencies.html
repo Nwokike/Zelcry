@@ -67,10 +67,13 @@
                     <td>
                         {% if user.is_authenticated %}
                         <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-primary" onclick="addToPortfolio('{{ coin.id }}', '{{ coin.name }}', '{{ coin.symbol }}', {{ coin.current_price }})">
+                            <button class="btn btn-outline-primary" onclick="addToPortfolio('{{ coin.id }}', '{{ coin.name }}', '{{ coin.symbol }}', {{ coin.current_price }})" title="Add to Portfolio">
                                 <i class="bi bi-plus-circle"></i>
                             </button>
-                            <a href="{% url 'crypto_details' coin.id %}" class="btn btn-outline-secondary">
+                            <button class="btn btn-outline-warning" onclick="addToWatchlist('{{ coin.id }}', '{{ coin.name }}', '{{ coin.symbol }}')" title="Add to Watchlist">
+                                <i class="bi bi-star"></i>
+                            </button>
+                            <a href="{% url 'crypto_details' coin.id %}" class="btn btn-outline-secondary" title="View Details">
                                 <i class="bi bi-info-circle"></i>
                             </a>
                         </div>
@@ -149,6 +152,39 @@ function addToPortfolio(coinId, coinName, coinSymbol, price) {
     document.getElementById('modal_display_name').value = coinName + ' (' + coinSymbol.toUpperCase() + ')';
     document.getElementById('modal_price_display').value = price;
     new bootstrap.Modal(document.getElementById('addToPortfolioModal')).show();
+}
+
+function addToWatchlist(coinId, coinName, coinSymbol) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{% url "watchlist" %}';
+    
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = '{{ csrf_token }}';
+    form.appendChild(csrfInput);
+    
+    const coinIdInput = document.createElement('input');
+    coinIdInput.type = 'hidden';
+    coinIdInput.name = 'coin_id';
+    coinIdInput.value = coinId;
+    form.appendChild(coinIdInput);
+    
+    const coinNameInput = document.createElement('input');
+    coinNameInput.type = 'hidden';
+    coinNameInput.name = 'coin_name';
+    coinNameInput.value = coinName;
+    form.appendChild(coinNameInput);
+    
+    const coinSymbolInput = document.createElement('input');
+    coinSymbolInput.type = 'hidden';
+    coinSymbolInput.name = 'coin_symbol';
+    coinSymbolInput.value = coinSymbol;
+    form.appendChild(coinSymbolInput);
+    
+    document.body.appendChild(form);
+    form.submit();
 }
 </script>
 {% endblock %}
