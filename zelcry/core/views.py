@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, F, DecimalField
 from .models import UserProfile, PortfolioAsset, CryptoAssetDetails, ChatMessage
-from .groq_ai import get_groq_response
+from .groq_ai import get_zelcry_ai_response, get_market_analysis
 import requests
 import json
 import uuid
@@ -356,7 +356,7 @@ def ai_advisor_query(request):
             Focus on sustainable crypto investing. Be concise and helpful.
             """
             
-            response = get_groq_response(message, context)
+            response = get_zelcry_ai_response(message, context)
             
             request.user.profile.xp_points += 2
             request.user.profile.save()
@@ -370,7 +370,7 @@ def ai_advisor_query(request):
 
 
 import uuid
-from .groq_ai import get_groq_response
+from .groq_ai import get_zelcry_ai_response, get_market_analysis
 from .models import ChatMessage
 
 @csrf_exempt
@@ -390,7 +390,7 @@ def guest_chat(request):
         
         if request.user.is_authenticated:
             user_chats = ChatMessage.objects.filter(user=request.user).count()
-            response = get_groq_response(message, f"User has {user_chats} previous chats")
+            response = get_zelcry_ai_response(message, f"User has {user_chats} previous chats")
             
             ChatMessage.objects.create(
                 user=request.user,
@@ -411,7 +411,7 @@ def guest_chat(request):
                     'limit_reached': True
                 })
             
-            response = get_groq_response(message, "This is a guest user - encourage them to sign up")
+            response = get_zelcry_ai_response(message, "This is a guest user - encourage them to sign up")
             
             ChatMessage.objects.create(
                 session_id=session_id,
@@ -467,6 +467,11 @@ def cryptocurrencies(request):
     return render(request, 'cryptocurrencies.html', context)
 
 def news(request):
+    from .crypto_news import get_crypto_news, get_trending_news
+    
+    category_filter = request.GET.get('category', '')
+    search_query = request.GET.get('search', '')
+    
     try:
         response = requests.get('https://api.coingecko.com/api/v3/coins/markets', params={
             'vs_currency': 'usd',
@@ -488,36 +493,28 @@ def news(request):
     except:
         top_movers = []
     
-    news_items = [
-        {
-            'title': 'Cryptocurrency Market Update',
-            'description': 'Latest trends and insights from the crypto market. Track top performers and emerging opportunities.',
-            'time': 'Updated daily',
-            'category': 'Market Analysis'
-        },
-        {
-            'title': 'Sustainable Crypto Initiatives',
-            'description': 'Major cryptocurrencies are transitioning to eco-friendly consensus mechanisms to reduce carbon footprint.',
-            'time': 'Recent',
-            'category': 'Sustainability'
-        },
-        {
-            'title': 'DeFi Innovation Continues',
-            'description': 'Decentralized finance platforms are introducing new features for better user experience and security.',
-            'time': 'This week',
-            'category': 'Technology'
-        },
-        {
-            'title': 'Regulatory Developments',
-            'description': 'Global regulators are working on frameworks to ensure crypto market stability and investor protection.',
-            'time': 'Ongoing',
-            'category': 'Regulation'
-        },
-    ]
+    news_items = get_crypto_news(limit=30)
+    
+    if category_filter:
+        news_items = [n for n in news_items if category_filter.lower() in [c.lower() for c in n.get('categories', [])]]
+    
+    if search_query:
+        query_lower = search_query.lower()
+        news_items = [n for n in news_items if 
+                     query_lower in n['title'].lower() or 
+                     query_lower in n.get('body', '').lower()]
+    
+    available_categories = set()
+    for news in news_items:
+        available_categories.update(news.get('categories', []))
+    available_categories.discard('')
     
     context = {
         'news_items': news_items,
         'top_movers': top_movers,
+        'available_categories': sorted(list(available_categories)),
+        'selected_category': category_filter,
+        'search_query': search_query,
     }
     
     return render(request, 'news.html', context)

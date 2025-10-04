@@ -86,10 +86,43 @@ class PriceAlert(models.Model):
     target_price = models.DecimalField(max_digits=20, decimal_places=2)
     condition = models.CharField(max_length=10, choices=[('above', 'Above'), ('below', 'Below')])
     is_active = models.BooleanField(default=True)
+    triggered = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    triggered_at = models.DateTimeField(null=True, blank=True)
     
     class Meta:
         ordering = ['-created_at']
     
     def __str__(self):
         return f"{self.user.username} - {self.coin_name} {self.condition} ${self.target_price}"
+
+
+class Watchlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='watchlist_items')
+    coin_id = models.CharField(max_length=100)
+    coin_name = models.CharField(max_length=100)
+    coin_symbol = models.CharField(max_length=10)
+    added_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+    
+    class Meta:
+        ordering = ['-added_at']
+        unique_together = ['user', 'coin_id']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.coin_name}"
+
+
+class PortfolioSnapshot(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='portfolio_snapshots')
+    total_value = models.DecimalField(max_digits=20, decimal_places=2)
+    total_invested = models.DecimalField(max_digits=20, decimal_places=2)
+    profit_loss = models.DecimalField(max_digits=20, decimal_places=2)
+    roi_percentage = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.username} - ${self.total_value} on {self.created_at.strftime('%Y-%m-%d')}"
