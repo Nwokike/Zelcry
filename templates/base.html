@@ -39,7 +39,7 @@
         .logo {
             font-size: 2rem;
             font-weight: 900;
-            background: linear-gradient(135deg, #0ea5e9, #10b981);
+            background: linear-gradient(135deg, #9333ea, #ec4899);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -121,7 +121,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #0ea5e9, #10b981);
+            background: linear-gradient(135deg, #9333ea, #ec4899);
             color: white;
             box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
         }
@@ -380,20 +380,20 @@
         <div class="bottom-nav-content">
             {% if user.is_authenticated %}
             <a href="{% url 'dashboard' %}" class="nav-item {% if 'dashboard' in request.path %}active{% endif %}">
-                <span class="nav-icon">📊</span>
+                <span class="nav-icon">💼</span>
                 <span class="nav-label">Portfolio</span>
             </a>
             <a href="{% url 'cryptocurrencies' %}" class="nav-item {% if 'cryptocurrencies' in request.path %}active{% endif %}">
-                <span class="nav-icon">💰</span>
-                <span class="nav-label">Cryptos</span>
-            </a>
-            <a href="{% url 'ai_advisor' %}" class="nav-item {% if 'ai' in request.path %}active{% endif %}">
-                <span class="nav-icon">🤖</span>
-                <span class="nav-label">AI Advisor</span>
+                <span class="nav-icon">🔍</span>
+                <span class="nav-label">Explore</span>
             </a>
             <a href="{% url 'watchlist' %}" class="nav-item {% if 'watchlist' in request.path %}active{% endif %}">
                 <span class="nav-icon">⭐</span>
-                <span class="nav-label">Watchlist</span>
+                <span class="nav-label">Favorites</span>
+            </a>
+            <a href="{% url 'ai_advisor' %}" class="nav-item {% if 'ai' in request.path %}active{% endif %}">
+                <span class="nav-icon">✨</span>
+                <span class="nav-label">AI Help</span>
             </a>
             <a href="{% url 'news' %}" class="nav-item {% if 'news' in request.path %}active{% endif %}">
                 <span class="nav-icon">📰</span>
@@ -405,16 +405,16 @@
                 <span class="nav-label">Home</span>
             </a>
             <a href="{% url 'cryptocurrencies' %}" class="nav-item {% if 'cryptocurrencies' in request.path %}active{% endif %}">
-                <span class="nav-icon">💰</span>
-                <span class="nav-label">Cryptos</span>
+                <span class="nav-icon">🔍</span>
+                <span class="nav-label">Explore</span>
+            </a>
+            <a href="{% url 'ai_advisor' %}" class="nav-item {% if 'ai' in request.path %}active{% endif %}">
+                <span class="nav-icon">✨</span>
+                <span class="nav-label">Try AI</span>
             </a>
             <a href="{% url 'news' %}" class="nav-item {% if 'news' in request.path %}active{% endif %}">
                 <span class="nav-icon">📰</span>
                 <span class="nav-label">News</span>
-            </a>
-            <a href="{% url 'ai_advisor' %}" class="nav-item {% if 'ai' in request.path %}active{% endif %}">
-                <span class="nav-icon">🤖</span>
-                <span class="nav-label">Try AI</span>
             </a>
             {% endif %}
         </div>

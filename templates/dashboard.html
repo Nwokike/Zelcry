@@ -5,7 +5,7 @@
 {% block extra_css %}
 <style>
     .dashboard-hero {
-        background: linear-gradient(135deg, #0ea5e9, #10b981);
+        background: linear-gradient(135deg, #9333ea, #ec4899);
         border-radius: 24px;
         padding: 2.5rem;
         color: white;
@@ -471,10 +471,19 @@
 
     <div class="grid-2" style="margin-bottom: 2rem;">
         <a href="{% url 'portfolio_analytics' %}" class="btn btn-primary" style="text-align: center; padding: 1.125rem; font-size: 1.05rem;">
-            📊 View Analytics
+            📊 View Detailed Analytics
         </a>
         <a href="{% url 'market_insights' %}" class="btn btn-outline" style="text-align: center; padding: 1.125rem; font-size: 1.05rem;">
-            🧠 Market Insights
+            🧠 AI Market Insights
+        </a>
+    </div>
+
+    <div class="grid-2" style="margin-bottom: 2rem;">
+        <a href="{% url 'watchlist' %}" class="btn btn-outline" style="text-align: center; padding: 1.125rem; font-size: 1.05rem;">
+            ⭐ My Favorites
+        </a>
+        <a href="{% url 'price_alerts' %}" class="btn btn-outline" style="text-align: center; padding: 1.125rem; font-size: 1.05rem;">
+            🔔 Price Alerts
         </a>
     </div>
 
