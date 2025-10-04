@@ -170,6 +170,18 @@
             <i class="bi bi-star"></i>
             <span>Watchlist</span>
         </a>
+        <a href="{% url 'price_alerts' %}" class="mobile-nav-item {% if 'price-alerts' in request.path %}active{% endif %}">
+            <i class="bi bi-bell"></i>
+            <span>Alerts</span>
+        </a>
+        <a href="{% url 'portfolio_analytics' %}" class="mobile-nav-item {% if 'portfolio-analytics' in request.path %}active{% endif %}">
+            <i class="bi bi-graph-up"></i>
+            <span>Analytics</span>
+        </a>
+        <a href="{% url 'market_insights' %}" class="mobile-nav-item {% if 'market-insights' in request.path %}active{% endif %}">
+            <i class="bi bi-lightbulb"></i>
+            <span>Insights</span>
+        </a>
         <a href="{% url 'news' %}" class="mobile-nav-item {% if 'news' in request.path %}active{% endif %}">
             <i class="bi bi-newspaper"></i>
             <span>News</span>
