@@ -47,5 +47,5 @@ externalPort = 3003
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "--workers=2", "zelcry.wsgi:application"]
-build = ["python", "manage.py", "collectstatic", "--noinput"]
+run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "zelcry.wsgi:application"]
+build = ["python", "manage.py", "migrate"]
