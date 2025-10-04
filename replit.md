@@ -1,229 +1,157 @@
-# Zelcry - Professional Cryptocurrency Investment Platform
+# Zelcry - AI-Powered Cryptocurrency Investment Platform
 
 ## Overview
-Zelcry is a professional-grade AI-powered cryptocurrency investment platform built with Django 5.2, featuring real-time market data, sustainability scoring, and comprehensive portfolio management tools.
 
-## Recent Updates (October 2025)
+Zelcry is a professional-grade cryptocurrency investment platform built with Django 5.2 that empowers users to make informed, sustainable investment decisions. The platform combines real-time market data, AI-powered insights using Groq's Llama 3.3 70B model, and comprehensive portfolio management tools. Key features include:
 
-### Complete UI/UX Redesign ✅
-- **Deleted all old templates and static files** for fresh start
-- **Modern Bootstrap 5 Design**: Professional, mobile-first UI with clean navigation
-- **Purple Gradient Theme**: Beautiful gradient backgrounds (purple to violet) for crypto branding
-- **Responsive Layout**: Optimized for all screen sizes with collapsible navigation
-- **Professional Typography**: Clean fonts and spacing
-- **Icon Integration**: Bootstrap Icons for consistent visual elements
-
-### New Features Implemented ✅
-
-#### 1. Landing Page (index.html)
-- Hero section with gradient background
-- Feature showcase with icons
-- Crypto preview with live prices (CoinGecko API)
-- Call-to-action buttons
-
-#### 2. Authentication Pages
-- Professional login page with centered card design
-- Signup page with risk tolerance selection
-- Clean form validation and error messaging
-
-#### 3. Dashboard (Logged-in Users)
-- Portfolio overview with statistics
-- XP/Gamification system with badges
-- Bitcoin price chart (30 days)
-- Top gainers and losers
-- Portfolio assets list
-- Sustainability metrics
-
-#### 4. Cryptocurrency Pages
-- **Cryptocurrencies Listing**: Search, filter, and browse 100+ cryptos
-- **Crypto Details**: Charts, sustainability scores, add to portfolio/watchlist
-- Impact scoring (energy, governance, utility)
-
-#### 5. AI Features
-- **AI Advisor**: Chat interface with Groq AI (Llama 3.3 70B)
-- **Market Insights**: AI-powered market analysis
-- Guest users: 3 free AI conversations
-- Authenticated users: Unlimited access
-
-#### 6. Portfolio Management
-- **Watchlist**: Track favorite cryptocurrencies
-- **Price Alerts**: Set above/below price targets
-- **Portfolio Analytics**: Charts (allocation, ROI), detailed holdings table
-- Real-time price updates
-
-#### 7. News & Information
-- Live crypto news from CryptoCompare API
-- Category filtering and search
-- Top movers sidebar
-- News cards with images
-
-#### 8. Legal Pages
-- Terms of Service
-- Privacy Policy
-- Professional formatting with cards
-
-### Technical Improvements ✅
-
-#### Automation
-- **APScheduler Integration**: Auto-refresh crypto data every hour
-- **Background Jobs**: Scheduled task for seed_crypto_data
-- **Manual Refresh Endpoint**: User-triggered data updates
-
-#### Styling & Assets
-- **Custom CSS** (static/css/style.css): Professional gradients, animations, responsive design
-- **JavaScript** (static/js/main.js): AJAX, form handling, utilities
-- **PWA Support**: Service worker registration, offline capabilities
-
-#### Backend Updates
-- **Updated Views**: Added context for all new templates
-- **Refresh Endpoint**: Manual crypto data refresh
-- **Enhanced Analytics**: Portfolio charts data preparation
-- **Market Insights**: AI-powered analysis with top gainers/losers
-
-### Professional Documentation ✅
-- **Comprehensive README.md**: Complete setup guide, API documentation, features
-- **Deployment Instructions**: Replit, Neon PostgreSQL, production settings
-- **Cost Breakdown**: Free/low-cost deployment options
-- **Security Best Practices**: Production checklist
-
-## Tech Stack
-
-### Backend
-- Django 5.2.6
-- APScheduler 3.11.0 (automated tasks)
-- PostgreSQL / SQLite
-- WhiteNoise (static files)
-- Gunicorn (production server)
-
-### Frontend
-- Bootstrap 5.3.2
-- Bootstrap Icons 1.11.3
-- Chart.js 4.4.0
-- Vanilla JavaScript
-
-### APIs & Services
-- **Groq AI**: Llama 3.3 70B for AI advisor (FREE)
-- **CoinGecko API**: Crypto market data (FREE)
-- **CryptoCompare API**: News feed (FREE tier)
-
-### PWA
-- django-pwa 2.0.1
-- Service Worker for offline support
-- Installable on mobile devices
-
-## Key Features
-
-1. **AI-Powered Investment Advisor**: Personalized crypto advice using Groq AI
-2. **Real-Time Portfolio Tracking**: Live prices, ROI, profit/loss calculations
-3. **Sustainability Scoring**: Energy, governance, and utility metrics
-4. **Market Intelligence**: Top gainers/losers, news feed, market insights
-5. **Price Alerts**: Custom notifications for price targets
-6. **Watchlist**: Track favorite cryptocurrencies
-7. **Gamification**: XP points, levels, and badges
-8. **Mobile-First Design**: Responsive Bootstrap 5 UI
-9. **PWA Support**: Install as mobile app
-10. **Automated Data Updates**: Hourly crypto data refresh
-
-## Project Structure
-
-```
-zelcry/
-├── zelcry/
-│   ├── core/
-│   │   ├── management/commands/
-│   │   │   └── seed_crypto_data.py
-│   │   ├── models.py
-│   │   ├── views.py
-│   │   ├── groq_ai.py
-│   │   ├── crypto_news.py
-│   │   ├── scheduler.py (NEW - APScheduler)
-│   │   └── apps.py (Updated for scheduler)
-│   ├── settings.py
-│   └── urls.py (Updated with refresh endpoint)
-├── templates/ (ALL NEW)
-│   ├── base.html
-│   ├── index.html
-│   ├── login.html
-│   ├── signup.html
-│   ├── dashboard.html
-│   ├── cryptocurrencies.html
-│   ├── crypto_details.html
-│   ├── ai_advisor.html
-│   ├── news.html
-│   ├── watchlist.html
-│   ├── price_alerts.html
-│   ├── portfolio_analytics.html
-│   ├── market_insights.html
-│   ├── terms_of_service.html
-│   └── privacy_policy.html
-├── static/ (ALL NEW)
-│   ├── css/style.css
-│   ├── js/main.js
-│   └── icons/ (PWA icons)
-└── README.md (REWRITTEN)
-```
-
-## Setup Instructions
-
-### 1. Environment Variables
-```env
-SECRET_KEY=your-secret-key
-DEBUG=True
-GROQ_API_KEY=your-groq-api-key
-CRYPTOCOMPARE_API_KEY=your-api-key (optional)
-DATABASE_URL= (optional for PostgreSQL)
-```
-
-### 2. Installation
-```bash
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py seed_crypto_data
-python manage.py collectstatic
-python manage.py runserver 0.0.0.0:5000
-```
-
-### 3. Workflow Configuration
-- **Workflow Name**: Zelcry Server
-- **Command**: `python manage.py runserver 0.0.0.0:5000`
-- **Port**: 5000
-- **Output**: webview
-
-## Deployment
-
-### Development (Current)
-- SQLite database
-- Django dev server on port 5000
-- Auto-refresh crypto data every hour
-
-### Production
-1. Set `DEBUG=False`
-2. Use PostgreSQL (Neon recommended)
-3. Run with Gunicorn: `gunicorn --bind 0.0.0.0:5000 --reuse-port --workers 4 zelcry.wsgi:application`
-4. Collect static files: `python manage.py collectstatic`
+- **AI Investment Advisor**: Personalized crypto recommendations and market analysis powered by Groq AI
+- **Portfolio Management**: Real-time tracking, ROI calculations, and performance analytics
+- **Market Intelligence**: Live pricing for 100+ cryptocurrencies from CoinGecko API
+- **Crypto News**: Real-time news feed from CryptoCompare API
+- **Sustainability Scoring**: Energy efficiency, governance, and utility metrics for responsible investing
+- **Progressive Web App**: Installable mobile experience with offline capabilities
+- **Price Alerts**: Customizable notifications for price movements
+- **Gamification**: XP points and leveling system to engage users
 
 ## User Preferences
-- Mobile-first design approach
-- Bootstrap 5 for professional UI
-- No childish or generic design
-- Clean, modern cryptocurrency platform aesthetic
-- Purple gradient theme for branding
-- All features accessible for both logged-in and logged-out users
 
-## Automation
-- Crypto data automatically refreshes every hour using APScheduler
-- Background scheduler starts on Django app initialization
-- Manual refresh available via `/refresh-crypto-data/` endpoint
+Preferred communication style: Simple, everyday language.
 
-## Next Steps (Future Enhancements)
-- [ ] Email notifications for price alerts
-- [ ] Advanced charting with TradingView
-- [ ] Social features
-- [ ] Tax reporting tools
-- [ ] Mobile app (React Native)
+## System Architecture
 
----
+### Backend Architecture
 
-**Status**: ✅ All features implemented and tested
-**Last Updated**: October 4, 2025
-**Developer Notes**: Complete UI/UX redesign completed. All functionalities preserved and enhanced. Auto-refresh implemented. Professional README documentation added.
+**Framework**: Django 5.2 with Python 3.11
+- **Monolithic MVC Pattern**: Django's MTV (Model-Template-View) architecture
+- **Database**: PostgreSQL via psycopg2-binary with dj-database-url for database URL parsing
+- **Authentication**: Django's built-in auth system with custom UserProfile extension
+- **Session Management**: Django sessions for guest AI chat tracking (3 free conversations)
+- **Task Scheduling**: APScheduler for automated crypto data refresh (hourly updates)
+- **Static Files**: WhiteNoise for efficient static file serving in production
+
+**Core Models**:
+- `UserProfile`: Extends User with risk tolerance, XP points, and theme preferences
+- `PortfolioAsset`: Tracks user cryptocurrency holdings with purchase price and quantity
+- `CryptoAssetDetails`: Stores sustainability metrics (energy, governance, utility scores)
+- `ChatMessage`: AI conversation history for authenticated and guest users
+- `PriceAlert`: User-defined price alerts with conditions (above/below)
+
+### Frontend Architecture
+
+**Template System**: Django templates with server-side rendering
+- **CSS Framework**: Bootstrap 5.3.2 for responsive design
+- **Icons**: Bootstrap Icons 1.11.3
+- **JavaScript**: Vanilla JS with jQuery (for Django admin)
+- **Progressive Web App**: django-pwa for PWA functionality (offline support, installability)
+- **Theme Support**: Light/dark mode with user preferences stored in database
+
+**Key UI Components**:
+- Real-time chat interface for AI advisor
+- Interactive portfolio analytics with charts
+- Responsive cryptocurrency listings with search/filter
+- News feed with category filtering
+- Price alert management dashboard
+
+### Data Layer
+
+**Database Design**:
+- PostgreSQL as primary database (configured via environment variables)
+- Django ORM for all database operations
+- Signal-based profile creation (post_save on User model)
+- Decimal fields for precise financial calculations
+
+**Caching Strategy**:
+- Django cache framework for API responses
+- 5-minute cache TTL for crypto news
+- Session-based caching for guest conversations
+
+### AI Integration
+
+**Groq AI Service** (groq_ai.py):
+- **Model**: llama-3.3-70b-versatile via Groq API
+- **Context-Aware**: Includes user portfolio data and risk tolerance in prompts
+- **Conversation History**: Maintains chat context for coherent multi-turn conversations
+- **Error Handling**: Graceful fallbacks with user-friendly error messages
+- **Temperature**: 0.7 for balanced creativity and accuracy
+- **Token Limit**: 800 max tokens per response
+
+**System Prompt Design**:
+- Professional, trustworthy advisor persona
+- Focus on sustainable and responsible investing
+- Simplified explanations for complex crypto concepts
+- Risk management emphasis
+
+### External Dependencies
+
+**Third-Party APIs**:
+
+1. **CoinGecko API** (Primary Market Data)
+   - Live cryptocurrency prices and market data
+   - 100+ supported cryptocurrencies
+   - Market cap, volume, price changes (24h, 7d)
+   - No API key required for basic usage
+
+2. **CryptoCompare API** (News Feed)
+   - Real-time cryptocurrency news articles
+   - Category and tag filtering
+   - Configurable via CRYPTOCOMPARE_API_KEY environment variable
+   - 5-minute cache to reduce API calls
+
+3. **Groq API** (AI Advisor)
+   - LLM inference for investment advice
+   - Requires GROQ_API_KEY in environment
+   - HTTP client via httpx library
+   - Rate limiting and error handling included
+
+**Python Packages**:
+- `Django==5.2.6`: Web framework
+- `groq==0.11.0`: Groq AI client library
+- `requests==2.32.5`: HTTP library for API calls
+- `apscheduler==3.11.0`: Background task scheduling
+- `python-decouple==3.8`: Environment variable management
+- `gunicorn==23.0.0`: WSGI HTTP server for production
+- `whitenoise==6.11.0`: Static file serving
+- `django-pwa==2.0.1`: Progressive Web App support
+
+### Deployment & Configuration
+
+**Environment Variables**:
+- `SECRET_KEY`: Django secret key for cryptographic signing
+- `DEBUG`: Debug mode toggle (default: True)
+- `GROQ_API_KEY`: Required for AI advisor functionality
+- `CRYPTOCOMPARE_API_KEY`: Optional for enhanced news API limits
+- `DATABASE_URL`: PostgreSQL connection string (parsed by dj-database-url)
+
+**Static Files**:
+- Collected to `staticfiles/` directory
+- Served by WhiteNoise in production
+- Versioned admin assets included
+
+**Scheduling**:
+- Background scheduler starts on app initialization (apps.py ready method)
+- Hourly job to refresh cryptocurrency data
+- Prevents stale market information
+
+**Security Considerations**:
+- CSRF protection enabled
+- SQL injection prevention via Django ORM
+- XSS protection through template auto-escaping
+- ALLOWED_HOSTS configured (currently set to '*' for flexibility)
+
+### Key Architectural Decisions
+
+1. **Django Over Alternatives**: Chosen for rapid development, built-in admin, ORM, and authentication system. Trade-off: Less flexibility than microservices but faster time-to-market.
+
+2. **Groq AI Selection**: Selected for cost-effective, high-quality LLM inference with good developer experience. Alternative considered: OpenAI GPT (more expensive, similar quality).
+
+3. **PostgreSQL Database**: Chosen for robust JSON support, excellent Django integration, and production-ready scalability. Could use SQLite for development simplicity.
+
+4. **APScheduler for Tasks**: Lightweight alternative to Celery for simple periodic tasks. Trade-off: Not distributed but simpler deployment.
+
+5. **Server-Side Rendering**: Django templates chosen over SPA for SEO benefits, faster initial load, and simpler architecture. Trade-off: Less interactive UX than React/Vue.
+
+6. **Bootstrap Framework**: Rapid UI development with responsive design out-of-box. Trade-off: Less unique design but faster development.
+
+7. **Session-Based Guest Access**: Allows free AI trials without authentication complexity. Limits enforced via session storage (3 conversations).
+
+8. **Decimal for Finance**: Prevents floating-point precision errors in portfolio calculations. Critical for accurate profit/loss tracking.
