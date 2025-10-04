@@ -8,6 +8,27 @@ Zelcry is a comprehensive cryptocurrency investment platform that combines AI-po
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes (October 2025)
+
+### Render Deployment Configuration
+- Created professional `README.md` with comprehensive documentation
+- Added `build.sh` script for Render.com deployment automation
+- Created `render.yaml` blueprint for one-click Render deployment
+- Updated settings.py for multi-platform deployment (Render, Oracle Cloud, Neon)
+- Database configuration now supports any PostgreSQL provider via `DATABASE_URL`
+
+### Mobile Navigation Enhancement  
+- Updated mobile bottom navigation to include ALL features for logged-in users:
+  - Dashboard, Cryptos, Watchlist, Alerts, Analytics, Insights, News, AI
+  - Removed dropdown menu - all 8 features now directly accessible on mobile
+  - Improved mobile UX with direct access to price alerts, portfolio analytics, and market insights
+
+### Code Quality & Performance
+- Explicit cache configuration added to settings.py (LocMemCache)
+- Fixed ALLOWED_HOSTS configuration for Render environment detection
+- Updated DEBUG default for proper development workflow
+- PostgreSQL database now configured for all production environments
+
 ## System Architecture
 
 ### Backend Architecture
