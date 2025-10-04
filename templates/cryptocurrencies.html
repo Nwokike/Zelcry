@@ -156,7 +156,7 @@
 
     .add-to-portfolio-btn {
         padding: 0.5rem 1rem;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        background: var(--primary);
         color: white;
         border: none;
         border-radius: 0.5rem;
@@ -164,6 +164,155 @@
         font-weight: 600;
         cursor: pointer;
         margin-left: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .add-to-portfolio-btn:hover {
+        background: var(--primary-dark);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        margin-left: auto;
+    }
+
+    .action-btn {
+        padding: 0.5rem 1rem;
+        border: 2px solid var(--border-medium);
+        background: transparent;
+        color: var(--text-secondary);
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .action-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--bg-secondary);
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.active {
+        display: flex;
+    }
+
+    .modal-content {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .modal-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .modal-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.9375rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.9375rem;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid var(--border-medium);
+        border-radius: 8px;
+        font-size: 1rem;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        transition: all 0.2s;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn-submit {
+        flex: 1;
+        padding: 0.875rem;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-submit:hover {
+        background: var(--primary-dark);
+    }
+
+    .btn-cancel {
+        flex: 1;
+        padding: 0.875rem;
+        background: transparent;
+        color: var(--text-secondary);
+        border: 2px solid var(--border-medium);
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-cancel:hover {
+        background: var(--bg-secondary);
+        border-color: var(--border-dark);
     }
 
     .loading {
@@ -209,15 +358,10 @@
                     {% endif %}
                 </div>
                 {% if user.is_authenticated %}
-                <form method="post" action="{% url 'add_to_portfolio' %}" onclick="event.stopPropagation();" style="display: inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="coin_id" value="{{ coin.id }}">
-                    <input type="hidden" name="coin_name" value="{{ coin.name }}">
-                    <input type="hidden" name="coin_symbol" value="{{ coin.symbol }}">
-                    <input type="hidden" name="quantity" value="1">
-                    <input type="hidden" name="purchase_price" value="{{ coin.current_price }}">
-                    <button type="submit" class="add-to-portfolio-btn">+ Add</button>
-                </form>
+                <div class="action-buttons" onclick="event.stopPropagation();">
+                    <button class="action-btn" onclick="openWatchlistModal('{{ coin.id }}', '{{ coin.name }}', '{{ coin.symbol }}')">+ Watchlist</button>
+                    <button class="action-btn" onclick="openPriceAlertModal('{{ coin.id }}', '{{ coin.name }}', {{ coin.current_price }})">Set Alert</button>
+                </div>
                 {% endif %}
             </div>
             {% endfor %}
@@ -248,4 +392,97 @@
         {% endif %}
     </div>
 </div>
+
+<!-- Watchlist Modal -->
+<div id="watchlistModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Add to Watchlist</h2>
+            <p class="modal-subtitle" id="watchlistCoinName"></p>
+        </div>
+        <form id="watchlistForm" method="post" action="{% url 'watchlist' %}">
+            {% csrf_token %}
+            <input type="hidden" name="coin_id" id="watchlist_coin_id">
+            <input type="hidden" name="coin_name" id="watchlist_coin_name">
+            <input type="hidden" name="coin_symbol" id="watchlist_coin_symbol">
+            
+            <div class="form-group">
+                <label class="form-label">Notes (optional)</label>
+                <textarea name="notes" class="form-textarea" placeholder="Why are you tracking this coin?"></textarea>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeWatchlistModal()">Cancel</button>
+                <button type="submit" class="btn-submit">Add to Watchlist</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Price Alert Modal -->
+<div id="priceAlertModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Set Price Alert</h2>
+            <p class="modal-subtitle" id="alertCoinName"></p>
+        </div>
+        <form id="priceAlertForm" method="post" action="{% url 'price_alerts' %}">
+            {% csrf_token %}
+            <input type="hidden" name="coin_id" id="alert_coin_id">
+            <input type="hidden" name="coin_name" id="alert_coin_name">
+            
+            <div class="form-group">
+                <label class="form-label">Target Price (USD)</label>
+                <input type="number" step="0.01" name="target_price" class="form-input" placeholder="Enter target price" required id="alert_target_price">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Alert Condition</label>
+                <select name="condition" class="form-select" required>
+                    <option value="above">When price goes above target</option>
+                    <option value="below">When price goes below target</option>
+                </select>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closePriceAlertModal()">Cancel</button>
+                <button type="submit" class="btn-submit">Create Alert</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openWatchlistModal(coinId, coinName, coinSymbol) {
+    document.getElementById('watchlist_coin_id').value = coinId;
+    document.getElementById('watchlist_coin_name').value = coinName;
+    document.getElementById('watchlist_coin_symbol').value = coinSymbol;
+    document.getElementById('watchlistCoinName').textContent = coinName;
+    document.getElementById('watchlistModal').classList.add('active');
+}
+
+function closeWatchlistModal() {
+    document.getElementById('watchlistModal').classList.remove('active');
+}
+
+function openPriceAlertModal(coinId, coinName, currentPrice) {
+    document.getElementById('alert_coin_id').value = coinId;
+    document.getElementById('alert_coin_name').value = coinName;
+    document.getElementById('alert_target_price').value = currentPrice;
+    document.getElementById('alertCoinName').textContent = coinName + ' (Current: $' + currentPrice + ')';
+    document.getElementById('priceAlertModal').classList.add('active');
+}
+
+function closePriceAlertModal() {
+    document.getElementById('priceAlertModal').classList.remove('active');
+}
+
+document.getElementById('watchlistModal').addEventListener('click', function(e) {
+    if (e.target === this) closeWatchlistModal();
+});
+
+document.getElementById('priceAlertModal').addEventListener('click', function(e) {
+    if (e.target === this) closePriceAlertModal();
+});
+</script>
 {% endblock %}
