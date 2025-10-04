@@ -1,18 +1,22 @@
 # Zelcry - Production-Ready Crypto Investment Platform
 
 ## Overview
-Zelcry is an AI-powered cryptocurrency investment platform designed for sustainable and responsible investing. It allows users to track portfolios, discover eco-friendly cryptocurrencies, access comprehensive market data for over 250 cryptocurrencies, receive AI-driven investment insights, and deploy entirely free on Oracle Cloud. The platform aims to provide a professional, startup-grade experience for crypto investors.
+Zelcry is an AI-powered cryptocurrency investment platform designed for sustainable and responsible investing. It allows users to track portfolios, discover eco-friendly cryptocurrencies, access comprehensive market data for over 250 cryptocurrencies, receive AI-driven investment insights, and deploy entirely free. The platform provides a professional, startup-grade experience for crypto investors.
 
 ## Recent Changes (Oct 4, 2025)
 - **Complete UI Redesign**: Modern, professional startup-grade design with gradient backgrounds, smooth animations, and premium feel
-- **Enhanced Navigation**: Bottom navigation bar for main sections (Home, Explore, AI, News, Profile) with elegant hover effects
+- **Enhanced Navigation**: Bottom navigation bar for main sections (Home, Explore, AI, News) - **NOW CONSISTENT FOR ALL USERS** (guest & authenticated)
 - **Redesigned Pages**: All templates updated with consistent professional styling:
   - Landing page with compelling hero section and feature showcase
   - Dashboard with beautiful portfolio cards and real-time analytics
   - Cryptocurrencies page with modern grid layout and search
   - AI Advisor with chat interface and conversation history
-  - News page with modern card layout and filtering
+  - News page with modern card layout and filtering (**FIXED timestamp error**)
   - Login/Signup with professional form design and benefits display
+- **Bug Fixes**:
+  - ✅ Fixed news page timestamp conversion error (Unix to datetime)
+  - ✅ Fixed bottom navigation not showing for guest users on all pages
+  - ✅ Improved Groq AI error messages to help diagnose API key issues
 - **Environment Setup**: Configured for Replit with proper ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS, and port 5000 binding
 - **Database**: Migrated and seeded with 20 cryptocurrencies
 - **Production Ready**: Configured deployment with Gunicorn, WhiteNoise, collectstatic, and autoscale
@@ -20,7 +24,7 @@ Zelcry is an AI-powered cryptocurrency investment platform designed for sustaina
 ## User Preferences
 - **Design Philosophy**: Professional startup-grade, mobile-first, clean, sustainable-themed UI
 - **Color Scheme**: Cyan/teal primary colors (#0ea5e9), green for success/sustainability (#10b981)
-- **Navigation**: Bottom tabs for main sections (Home, Explore, AI, News, Profile), top header for user actions
+- **Navigation**: Bottom tabs for main sections - **ALWAYS VISIBLE** for guest and authenticated users
 - **Consistency**: Unified professional experience across authenticated and guest states
 - **AI Branding**: "Zelcry AI" instead of generic "Groq AI"
 - **Content**: Real crypto news from CryptoCompare API (free tier)
@@ -49,11 +53,11 @@ Zelcry is an AI-powered cryptocurrency investment platform designed for sustaina
 
 ### System Design Choices
 - **UI/UX**: Professional, mobile-first design with gradient backgrounds, smooth animations, and modern aesthetics
-- **Navigation**: Bottom bar with 5 main sections (Home, Explore, AI, News, Profile) for easy mobile access
+- **Navigation**: Bottom bar ALWAYS visible with 4 main sections (Home, Cryptos, News, Try AI) for guests; 5 sections for authenticated users (+ Portfolio, Watchlist)
 - **Forms**: Beautiful, modern forms with gradient buttons and smooth focus effects
 - **Cards**: Elevated cards with subtle shadows and hover effects for premium feel
 - **Database Management**: Automatic detection for SQLite in development and Neon PostgreSQL in production
-- **Deployment**: Optimized for free-tier deployment (Replit autoscale or Oracle Cloud) using Neon PostgreSQL
+- **Deployment**: Optimized for 100% FREE deployment (Replit autoscale) using free-tier services
 - **PWA Integration**: Ensures a native app-like experience with service workers
 - **Security**: Django's built-in security features, CSRF protection, environment variable configuration
 
@@ -64,16 +68,48 @@ Zelcry is an AI-powered cryptocurrency investment platform designed for sustaina
 - **ALLOWED_HOSTS**: Configured for Replit domains (.replit.dev, .repl.co)
 - **CSRF_TRUSTED_ORIGINS**: Configured for Replit proxy compatibility
 
-## External Dependencies
-- **CoinGecko API**: For real-time cryptocurrency market data and prices (Free tier)
-- **Groq AI**: Powers the Zelcry AI with the Llama 3.3 70B model (Free tier - requires API key)
-- **CryptoCompare API**: Provides real-time cryptocurrency news (Free tier - optional)
-- **Neon PostgreSQL**: Managed PostgreSQL database service for production (Free tier)
-- **Replit/Oracle Cloud**: Cloud infrastructure for hosting (Free tier available)
+## 100% FREE Tier Services ✅
+
+### External APIs (All Free)
+1. **CoinGecko API** (Free tier - NO KEY REQUIRED)
+   - Real-time crypto prices and market data
+   - 250+ cryptocurrencies
+   - Rate limit: 10-50 calls/minute (sufficient for this app)
+
+2. **Groq AI** (Free tier - KEY REQUIRED)
+   - Llama 3.3 70B model
+   - Generous free tier: 30 requests/minute
+   - Get free key: https://console.groq.com
+
+3. **CryptoCompare API** (Free tier - KEY OPTIONAL)
+   - Real-time crypto news
+   - Works without key (lower rate limits)
+   - Optional: Get free key at https://www.cryptocompare.com/cryptopian/api-keys
+
+### Infrastructure (All Free)
+1. **Replit** (Free autoscale deployment)
+   - Autoscale: Only runs when accessed (free)
+   - Static deployment with Gunicorn
+
+2. **SQLite** (Development - Free)
+   - Built-in, no setup needed
+
+3. **Neon PostgreSQL** (Production - Free tier available)
+   - Optional for production
+   - Free tier: 0.5GB storage, 100 hours compute/month
 
 ## API Keys & Secrets
-- **GROQ_API_KEY**: Required for AI advisor functionality (user must provide in Replit Secrets)
-- **CRYPTOCOMPARE_API_KEY**: Optional for enhanced news API limits (free tier works without)
+
+### Required for AI Functionality
+- **GROQ_API_KEY**: Required for Zelcry AI advisor
+  - Get free key: https://console.groq.com
+  - Add to Replit Secrets (Tools → Secrets)
+  - **IMPORTANT**: Must have actual API key value, not just `GROQ_API_KEY=`
+
+### Optional for Enhanced Features
+- **CRYPTOCOMPARE_API_KEY**: Optional for enhanced news API limits
+  - Works without key (uses free tier)
+  - Optional key: https://www.cryptocompare.com/cryptopian/api-keys
 
 ## File Structure
 ```
@@ -84,12 +120,12 @@ zelcry/
 │   └── wsgi.py           # WSGI config for production
 ├── core/                  # Main application
 │   ├── models.py         # Database models
-│   ├── views.py          # View logic
-│   ├── groq_ai.py        # Zelcry AI integration
+│   ├── views.py          # View logic (FIXED: news timestamp, navigation)
+│   ├── groq_ai.py        # Zelcry AI integration (IMPROVED: error messages)
 │   ├── crypto_news.py    # News API integration
 │   └── management/       # Django commands
 ├── templates/             # HTML templates (all redesigned)
-│   ├── base.html         # Base template with navigation
+│   ├── base.html         # Base template with navigation (FIXED: guest nav)
 │   ├── index.html        # Landing page
 │   ├── dashboard.html    # User dashboard
 │   ├── cryptocurrencies.html # Crypto listing
@@ -100,14 +136,71 @@ zelcry/
 └── static/               # Static files (CSS, JS)
 ```
 
-## Deployment Instructions
-1. **Add Secrets**: Set GROQ_API_KEY in Replit Secrets for AI functionality
-2. **Database**: Add Neon PostgreSQL database URL to secrets (optional for development)
-3. **Publish**: Click "Deploy" button to publish to production
-4. **Collect Static**: Run `python manage.py collectstatic` (auto-runs on deploy)
+## How to Get Groq API Key (100% Free)
 
-## Next Steps for User
-1. **Test News**: Visit /news to see real-time crypto news (works immediately - free tier)
-2. **Add Groq API Key**: Add GROQ_API_KEY to Replit Secrets to enable AI advisor
-3. **Create Account**: Sign up to access full features (portfolio, watchlist, alerts)
-4. **Deploy**: Publish the app when ready for production use
+1. Go to: https://console.groq.com
+2. Sign up for free account (GitHub/Google login)
+3. Navigate to "API Keys" section
+4. Click "Create API Key"
+5. Copy the generated key (starts with `gsk_...`)
+6. In Replit:
+   - Go to Tools → Secrets
+   - Add: Key = `GROQ_API_KEY`, Value = `gsk_your_actual_key_here`
+   - **DO NOT** leave the value empty!
+7. Restart your app - AI will work immediately!
+
+## Deployment Instructions (100% Free)
+
+### Development (Now)
+- ✅ Django server running on port 5000
+- ✅ SQLite database with seeded data
+- ✅ All features functional
+
+### Production (When Ready)
+1. **Optional: Add Neon PostgreSQL**
+   - Go to: https://neon.tech
+   - Create free database
+   - Add DATABASE_URL to Replit Secrets
+
+2. **Deploy to Replit (Free)**
+   - Click "Deploy" button
+   - Select "Autoscale" (100% free - only runs when accessed)
+   - Static files automatically collected
+   - Done! Your app is live
+
+## Troubleshooting
+
+### AI Says "Needs API Key"
+- Add GROQ_API_KEY to Replit Secrets with actual API key value
+- Get free key: https://console.groq.com
+- Restart the app after adding
+
+### AI Says "Invalid API Key"
+- Check the API key value in Replit Secrets
+- Make sure it starts with `gsk_`
+- Verify it's copied correctly (no spaces)
+- Generate new key if needed
+
+### News Not Loading
+- Already fixed! Timestamp conversion error resolved
+- News works immediately with free tier (no key needed)
+
+### Navigation Not Showing for Guests
+- Already fixed! Bottom nav now shows on all pages for all users
+
+## Next Steps
+
+1. ✅ **Test News**: Visit /news to see real-time crypto news (works now!)
+2. ✅ **Fix Navigation**: Bottom nav now works for all users on all pages
+3. 🔑 **Add Groq API Key**: 
+   - Go to https://console.groq.com (free signup)
+   - Generate API key
+   - Add to Replit Secrets as `GROQ_API_KEY`
+   - Value should be your actual key (e.g., `gsk_abc123...`)
+   - **NOT** just `GROQ_API_KEY=` with empty value!
+4. ✨ **Create Account**: Sign up to access full features
+5. 🚀 **Deploy**: Publish when ready (100% free autoscale)
+
+---
+
+**Total Cost**: $0.00 - Everything runs on free tiers! 🎉

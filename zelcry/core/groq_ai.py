@@ -1,5 +1,6 @@
 from groq import Groq
 from django.conf import settings
+import httpx
 
 def get_zelcry_ai_response(message, context="", conversation_history=None):
     """
@@ -10,7 +11,8 @@ def get_zelcry_ai_response(message, context="", conversation_history=None):
         if not settings.GROQ_API_KEY or settings.GROQ_API_KEY.strip() == '':
             return "🔑 Zelcry AI needs a Groq API key to work. Please add your GROQ_API_KEY to Replit Secrets. Get a free API key at console.groq.com"
         
-        client = Groq(api_key=settings.GROQ_API_KEY)
+        http_client = httpx.Client()
+        client = Groq(api_key=settings.GROQ_API_KEY, http_client=http_client)
         
         system_message = """You are Zelcry AI, the advanced AI advisor for Zelcry - a professional crypto investment platform. 
         
@@ -52,7 +54,8 @@ Tone: Professional, knowledgeable, supportive, and trustworthy."""
 def get_market_analysis(market_data):
     """Get AI-powered market analysis"""
     try:
-        client = Groq(api_key=settings.GROQ_API_KEY)
+        http_client = httpx.Client()
+        client = Groq(api_key=settings.GROQ_API_KEY, http_client=http_client)
         
         prompt = f"""Analyze this cryptocurrency market data and provide brief insights:
 {market_data}
