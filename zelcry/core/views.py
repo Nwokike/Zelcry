@@ -334,7 +334,6 @@ def ai_advisor(request):
     return render(request, 'ai_advisor.html', context)
 
 @login_required
-@login_required
 @csrf_exempt
 def ai_advisor_query(request):
     if request.method == 'POST':
@@ -519,6 +518,10 @@ def news(request):
         top_movers = []
     
     news_items = get_crypto_news(limit=30)
+    
+    for news_item in news_items:
+        if news_item.get('published_on'):
+            news_item['published_on'] = datetime.fromtimestamp(news_item['published_on'])
     
     if category_filter:
         news_items = [n for n in news_items if category_filter.lower() in [c.lower() for c in n.get('categories', [])]]
