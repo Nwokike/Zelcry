@@ -25,20 +25,10 @@ SECRET_KEY = config(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)  # Default False for safety
+DEBUG = config('DEBUG', default=True, cast=bool)
 
 # --- ALLOWED_HOSTS ---
-# Local defaults
-default_hosts = ['127.0.0.1', 'localhost', '*']
-
-# If running on Render, allow the external hostname and all .onrender.com subdomains
-if 'RENDER' in os.environ:
-    render_host = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-    if render_host:
-        default_hosts.append(render_host)
-    default_hosts.append('.onrender.com')
-
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=','.join(default_hosts)).split(',')
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -159,11 +149,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # AI Configuration - Zelcry AI (Groq)
 GROQ_API_KEY = config('GROQ_API_KEY', default='')
 
-# Crypto News API
+# Crypto News API (optional - has free tier)
 CRYPTOCOMPARE_API_KEY = config('CRYPTOCOMPARE_API_KEY', default='')
 
-# Replit environment configuration
-REPLIT_ENV = 'REPL_ID' in os.environ
-if REPLIT_ENV:
-    ALLOWED_HOSTS.extend(['.replit.dev', '.repl.co'])
-    default_hosts.extend(['.replit.dev', '.repl.co'])
+# CSRF and Security Settings for Replit
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.replit.dev',
+    'https://*.repl.co',
+    'https://*.replit.app',
+]
+
+# Session settings
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = not DEBUG
