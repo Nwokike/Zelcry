@@ -524,3 +524,232 @@ def terms_of_service(request):
 
 def privacy_policy(request):
     return render(request, 'privacy_policy.html')
+
+@login_required
+def watchlist(request):
+    from .models import Watchlist
+    
+    if request.method == 'POST':
+        coin_id = request.POST.get('coin_id')
+        coin_name = request.POST.get('coin_name')
+        coin_symbol = request.POST.get('coin_symbol')
+        notes = request.POST.get('notes', '')
+        
+        Watchlist.objects.get_or_create(
+            user=request.user,
+            coin_id=coin_id,
+            defaults={
+                'coin_name': coin_name,
+                'coin_symbol': coin_symbol,
+                'notes': notes
+            }
+        )
+        
+        request.user.profile.xp_points += 5
+        request.user.profile.save()
+        messages.success(request, f'Added {coin_name} to your watchlist! +5 XP')
+        return redirect('watchlist')
+    
+    watchlist_items = Watchlist.objects.filter(user=request.user)
+    
+    for item in watchlist_items:
+        try:
+            price_response = requests.get(f'https://api.coingecko.com/api/v3/simple/price', params={
+                'ids': item.coin_id,
+                'vs_currencies': 'usd',
+                'include_24hr_change': True
+            }, timeout=5)
+            if price_response.status_code == 200:
+                data = price_response.json().get(item.coin_id, {})
+                item.current_price = data.get('usd', 0)
+                item.price_change_24h = data.get('usd_24h_change', 0)
+        except:
+            item.current_price = 0
+            item.price_change_24h = 0
+    
+    context = {'watchlist_items': watchlist_items}
+    return render(request, 'watchlist.html', context)
+
+
+@login_required
+def remove_from_watchlist(request, coin_id):
+    from .models import Watchlist
+    Watchlist.objects.filter(user=request.user, coin_id=coin_id).delete()
+    messages.success(request, 'Removed from watchlist')
+    return redirect('watchlist')
+
+
+@login_required
+def price_alerts(request):
+    from .models import PriceAlert
+    
+    if request.method == 'POST':
+        coin_id = request.POST.get('coin_id')
+        coin_name = request.POST.get('coin_name')
+        target_price = request.POST.get('target_price')
+        condition = request.POST.get('condition')
+        
+        PriceAlert.objects.create(
+            user=request.user,
+            coin_id=coin_id,
+            coin_name=coin_name,
+            target_price=target_price,
+            condition=condition
+        )
+        
+        request.user.profile.xp_points += 10
+        request.user.profile.save()
+        messages.success(request, f'Price alert created for {coin_name}! +10 XP')
+        return redirect('price_alerts')
+    
+    alerts = PriceAlert.objects.filter(user=request.user, is_active=True)
+    
+    for alert in alerts:
+        try:
+            price_response = requests.get(f'https://api.coingecko.com/api/v3/simple/price', params={
+                'ids': alert.coin_id,
+                'vs_currencies': 'usd'
+            }, timeout=5)
+            if price_response.status_code == 200:
+                data = price_response.json().get(alert.coin_id, {})
+                alert.current_price = data.get('usd', 0)
+                
+                if alert.condition == 'above' and alert.current_price >= float(alert.target_price):
+                    alert.triggered = True
+                    alert.triggered_at = datetime.now()
+                    alert.is_active = False
+                    alert.save()
+                elif alert.condition == 'below' and alert.current_price <= float(alert.target_price):
+                    alert.triggered = True
+                    alert.triggered_at = datetime.now()
+                    alert.is_active = False
+                    alert.save()
+        except:
+            alert.current_price = 0
+    
+    triggered_alerts = PriceAlert.objects.filter(user=request.user, triggered=True).order_by('-triggered_at')[:10]
+    
+    context = {
+        'active_alerts': alerts,
+        'triggered_alerts': triggered_alerts
+    }
+    return render(request, 'price_alerts.html', context)
+
+
+@login_required
+def delete_alert(request, alert_id):
+    from .models import PriceAlert
+    PriceAlert.objects.filter(user=request.user, id=alert_id).delete()
+    messages.success(request, 'Alert deleted')
+    return redirect('price_alerts')
+
+
+@login_required
+def portfolio_analytics(request):
+    from .models import PortfolioAsset, PortfolioSnapshot
+    
+    portfolio_assets = PortfolioAsset.objects.filter(user=request.user)
+    snapshots = PortfolioSnapshot.objects.filter(user=request.user).order_by('-created_at')[:30]
+    
+    total_value = 0
+    total_invested = 0
+    asset_allocation = []
+    
+    for asset in portfolio_assets:
+        try:
+            price_response = requests.get(f'https://api.coingecko.com/api/v3/simple/price', params={
+                'ids': asset.coin_id,
+                'vs_currencies': 'usd'
+            }, timeout=5)
+            if price_response.status_code == 200:
+                data = price_response.json().get(asset.coin_id, {})
+                current_price = data.get('usd', 0)
+                asset_value = float(asset.quantity) * current_price
+                total_value += asset_value
+                invested = float(asset.quantity) * float(asset.purchase_price)
+                total_invested += invested
+                
+                asset_allocation.append({
+                    'name': asset.coin_name,
+                    'value': asset_value,
+                    'percentage': 0
+                })
+        except:
+            pass
+    
+    for allocation in asset_allocation:
+        allocation['percentage'] = (allocation['value'] / total_value * 100) if total_value > 0 else 0
+    
+    profit_loss = total_value - total_invested
+    roi = ((profit_loss / total_invested) * 100) if total_invested > 0 else 0
+    
+    if request.method == 'POST' and request.POST.get('create_snapshot'):
+        PortfolioSnapshot.objects.create(
+            user=request.user,
+            total_value=Decimal(str(total_value)),
+            total_invested=Decimal(str(total_invested)),
+            profit_loss=Decimal(str(profit_loss)),
+            roi_percentage=Decimal(str(roi))
+        )
+        messages.success(request, 'Portfolio snapshot created!')
+        return redirect('portfolio_analytics')
+    
+    snapshot_data = {
+        'labels': [s.created_at.strftime('%m/%d') for s in reversed(snapshots)],
+        'values': [float(s.total_value) for s in reversed(snapshots)]
+    }
+    
+    context = {
+        'total_value': total_value,
+        'total_invested': total_invested,
+        'profit_loss': profit_loss,
+        'roi': roi,
+        'asset_allocation': asset_allocation,
+        'snapshots': snapshots,
+        'snapshot_data': json.dumps(snapshot_data)
+    }
+    
+    return render(request, 'portfolio_analytics.html', context)
+
+
+@login_required
+def market_insights(request):
+    """AI-powered market insights and personalized recommendations"""
+    try:
+        response = requests.get('https://api.coingecko.com/api/v3/coins/markets', params={
+            'vs_currency': 'usd',
+            'order': 'market_cap_desc',
+            'per_page': 20,
+            'page': 1,
+            'sparkline': False,
+            'price_change_percentage': '24h'
+        }, timeout=10)
+        
+        if response.status_code == 200:
+            market_data = response.json()
+            
+            market_summary = []
+            for coin in market_data[:10]:
+                market_summary.append(f"{coin['name']}: ${coin['current_price']:.2f} ({coin.get('price_change_percentage_24h', 0):.2f}%)")
+            
+            market_text = "\n".join(market_summary)
+            
+            ai_insights = get_market_analysis(market_text)
+        else:
+            ai_insights = None
+            market_data = []
+    except:
+        ai_insights = None
+        market_data = []
+    
+    portfolio_assets = PortfolioAsset.objects.filter(user=request.user)
+    risk_tolerance = request.user.profile.risk_tolerance
+    
+    context = {
+        'ai_insights': ai_insights,
+        'market_data': market_data,
+        'portfolio_count': portfolio_assets.count(),
+        'risk_tolerance': risk_tolerance
+    }
+    
+    return render(request, 'market_insights.html', context)

@@ -89,7 +89,7 @@ WSGI_APPLICATION = 'zelcry.wsgi.application'
 # SQLite for development, PostgreSQL (Neon) for production
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-if os.environ.get('DATABASE_URL'):
+if os.environ.get('DATABASE_URL') and 'neon' in os.environ.get('DATABASE_URL', '').lower():
     DATABASES = {
         'default': dj_database_url.config(
             default=os.environ.get('DATABASE_URL'),
