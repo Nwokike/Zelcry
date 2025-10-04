@@ -2,43 +2,252 @@
 
 {% block title %}Watchlist - Zelcry{% endblock %}
 
+{% block extra_css %}
+<style>
+    .watchlist-hero {
+        background: linear-gradient(135deg, #0ea5e9, #10b981);
+        border-radius: 24px;
+        padding: 2.5rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 40px rgba(14, 165, 233, 0.3);
+    }
+
+    .hero-title {
+        font-size: 2rem;
+        font-weight: 900;
+        margin-bottom: 0.5rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.125rem;
+        opacity: 0.95;
+    }
+
+    .watchlist-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .watchlist-card {
+        background: var(--bg-card);
+        border: 2px solid var(--border-light);
+        border-radius: 20px;
+        padding: 1.75rem;
+        transition: all 0.3s;
+    }
+
+    .watchlist-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-4px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .coin-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .coin-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: white;
+    }
+
+    .coin-info h3 {
+        font-size: 1.375rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .coin-symbol {
+        color: var(--text-tertiary);
+        font-weight: 600;
+        font-size: 0.9375rem;
+    }
+
+    .price-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem;
+        background: var(--bg-secondary);
+        border-radius: 14px;
+        margin-bottom: 1rem;
+    }
+
+    .current-price {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--text-primary);
+    }
+
+    .price-change {
+        font-size: 1rem;
+        font-weight: 700;
+        padding: 0.5rem 1rem;
+        border-radius: 30px;
+    }
+
+    .price-change.positive {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--success);
+    }
+
+    .price-change.negative {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--error);
+    }
+
+    .coin-notes {
+        color: var(--text-secondary);
+        font-size: 0.9375rem;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        font-style: italic;
+    }
+
+    .remove-btn {
+        width: 100%;
+        padding: 0.875rem;
+        background: var(--bg-secondary);
+        color: var(--error);
+        border: 2px solid var(--border-light);
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+    }
+
+    .remove-btn:hover {
+        background: var(--error);
+        color: white;
+        border-color: var(--error);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--bg-card);
+        border: 2px dashed var(--border-light);
+        border-radius: 24px;
+        margin-top: 2rem;
+    }
+
+    .empty-icon {
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.5;
+    }
+
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+    }
+
+    .empty-text {
+        color: var(--text-secondary);
+        font-size: 1.0625rem;
+        margin-bottom: 2rem;
+    }
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.0625rem;
+        text-decoration: none;
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+    }
+
+    @media (max-width: 768px) {
+        .watchlist-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .hero-title {
+            font-size: 1.75rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-    <h2>📋 My Watchlist</h2>
-    <p class="text-muted">Track cryptocurrencies you're interested in</p>
-    
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
-    
-    <div class="row mt-4">
-        {% if watchlist_items %}
-            {% for item in watchlist_items %}
-                <div class="col-md-6 mb-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ item.coin_name }} ({{ item.coin_symbol|upper }})</h5>
-                            <p class="card-text">
-                                Price: ${{ item.current_price|floatformat:2 }}
-                                <span class="{% if item.price_change_24h >= 0 %}text-success{% else %}text-danger{% endif %}">
-                                    {{ item.price_change_24h|floatformat:2 }}%
-                                </span>
-                            </p>
-                            {% if item.notes %}
-                                <p class="small text-muted">{{ item.notes }}</p>
-                            {% endif %}
-                            <a href="{% url 'remove_from_watchlist' item.coin_id %}" class="btn btn-sm btn-danger">Remove</a>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <div class="col-12">
-                <p class="text-center text-muted">Your watchlist is empty. Browse <a href="{% url 'cryptocurrencies' %}">cryptocurrencies</a> to add some!</p>
-            </div>
-        {% endif %}
+<div class="container" style="padding-top: 2rem;">
+    <div class="watchlist-hero">
+        <h1 class="hero-title">⭐ My Watchlist</h1>
+        <p class="hero-subtitle">Track cryptocurrencies you're interested in</p>
     </div>
+
+    {% if watchlist_items %}
+    <div class="watchlist-grid">
+        {% for item in watchlist_items %}
+        <div class="watchlist-card">
+            <div class="coin-header">
+                <div class="coin-icon">{{ item.coin_symbol|slice:":1"|upper }}</div>
+                <div class="coin-info">
+                    <h3>{{ item.coin_name }}</h3>
+                    <div class="coin-symbol">{{ item.coin_symbol|upper }}</div>
+                </div>
+            </div>
+
+            <div class="price-info">
+                <div class="current-price">${{ item.current_price|floatformat:2 }}</div>
+                <div class="price-change {% if item.price_change_24h >= 0 %}positive{% else %}negative{% endif %}">
+                    {% if item.price_change_24h >= 0 %}+{% endif %}{{ item.price_change_24h|floatformat:2 }}%
+                </div>
+            </div>
+
+            {% if item.notes %}
+            <div class="coin-notes">{{ item.notes }}</div>
+            {% endif %}
+
+            <a href="{% url 'remove_from_watchlist' item.coin_id %}" class="remove-btn">🗑️ Remove from Watchlist</a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">⭐</div>
+        <h2 class="empty-title">Your Watchlist is Empty</h2>
+        <p class="empty-text">Start tracking cryptocurrencies you're interested in</p>
+        <a href="{% url 'cryptocurrencies' %}" class="btn-primary">
+            <span>Explore Cryptocurrencies</span>
+            <span>→</span>
+        </a>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
