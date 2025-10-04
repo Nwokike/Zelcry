@@ -1,12 +1,53 @@
 {% extends 'base.html' %}
 
-{% block title %}Sign Up - Zelcry{% endblock %}
+{% block title %}Create Account - Zelcry{% endblock %}
 
 {% block extra_css %}
 <style>
     .auth-container {
-        max-width: 480px;
-        margin: 2rem auto;
+        max-width: 520px;
+        margin: 3rem auto;
+        padding: 0 1rem;
+    }
+
+    .auth-card {
+        background: var(--bg-card);
+        border: 2px solid var(--border-light);
+        border-radius: 28px;
+        padding: 3rem 2.5rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .auth-icon {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 1.5rem;
+        background: linear-gradient(135deg, #0ea5e9, #10b981);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+    }
+
+    .auth-title {
+        font-size: 2rem;
+        font-weight: 900;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #0ea5e9, #10b981);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .auth-subtitle {
+        color: var(--text-secondary);
+        font-size: 1rem;
     }
 
     .form-group {
@@ -15,106 +56,218 @@
 
     .form-label {
         display: block;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: var(--text);
+        font-weight: 700;
+        margin-bottom: 0.625rem;
+        color: var(--text-primary);
+        font-size: 0.9375rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid var(--border-light);
+        border-radius: 14px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        font-family: inherit;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: var(--bg-card);
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+    }
+
+    select.form-input {
+        cursor: pointer;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 1.125rem;
+        background: linear-gradient(135deg, #0ea5e9, #10b981);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        font-weight: 800;
+        font-size: 1.0625rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+        margin-top: 0.5rem;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
     }
 
     .divider {
         text-align: center;
-        margin: 2rem 0;
+        margin: 2rem 0 0;
         padding-top: 2rem;
-        border-top: 1px solid var(--border);
+        border-top: 2px solid var(--border-light);
+    }
+
+    .divider-text {
+        color: var(--text-secondary);
+        font-size: 0.9375rem;
+    }
+
+    .link {
+        color: var(--primary);
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .link:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+
+    .benefits {
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(16, 185, 129, 0.08));
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .benefits-title {
+        font-weight: 800;
+        font-size: 0.9375rem;
+        margin-bottom: 0.75rem;
+        color: var(--text-primary);
+    }
+
+    .benefits-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .benefit-item {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    @media (max-width: 640px) {
+        .auth-card {
+            padding: 2rem 1.5rem;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="top-bar">
-    <div class="top-bar-content">
-        <a href="{% url 'index' %}" class="back-btn">←</a>
-        <h1 class="top-bar-title">Sign Up</h1>
-        <button class="theme-toggle">🌙</button>
-    </div>
-</div>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-icon">✨</div>
+            <h1 class="auth-title">Join Zelcry</h1>
+            <p class="auth-subtitle">Start your smart crypto investment journey</p>
+        </div>
 
-<div class="content-area">
-    <div class="container auth-container">
-        <div class="card" style="padding: 2rem;">
-            <h1 style="text-align: center; margin-bottom: 2rem;">Create Your Account</h1>
-
-            <form method="post" action="{% url 'signup' %}">
-                {% csrf_token %}
-
-                <div class="form-group">
-                    <label for="username" class="form-label">Username</label>
-                    <input
-                        type="text"
-                        id="username"
-                        name="username"
-                        class="input-field"
-                        placeholder="Choose a username"
-                        required
-                        autofocus
-                    >
+        <div class="benefits">
+            <div class="benefits-title">What you'll get:</div>
+            <div class="benefits-list">
+                <div class="benefit-item">
+                    <span>✓</span>
+                    <span>Unlimited AI-powered investment advice</span>
                 </div>
-
-                <div class="form-group">
-                    <label for="email" class="form-label">Email</label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        class="input-field"
-                        placeholder="your@email.com"
-                        required
-                    >
+                <div class="benefit-item">
+                    <span>✓</span>
+                    <span>Real-time portfolio tracking & analytics</span>
                 </div>
-
-                <div class="form-group">
-                    <label for="password1" class="form-label">Password</label>
-                    <input
-                        type="password"
-                        id="password1"
-                        name="password1"
-                        class="input-field"
-                        placeholder="Create a strong password"
-                        required
-                    >
+                <div class="benefit-item">
+                    <span>✓</span>
+                    <span>Sustainability scores for all cryptos</span>
                 </div>
-
-                <div class="form-group">
-                    <label for="password2" class="form-label">Confirm Password</label>
-                    <input
-                        type="password"
-                        id="password2"
-                        name="password2"
-                        class="input-field"
-                        placeholder="Confirm your password"
-                        required
-                    >
+                <div class="benefit-item">
+                    <span>✓</span>
+                    <span>Price alerts & personalized insights</span>
                 </div>
-
-                <div class="form-group">
-                    <label for="risk_tolerance" class="form-label">Risk Tolerance</label>
-                    <select name="risk_tolerance" id="risk_tolerance" class="input-field">
-                        <option value="Low">Low - Safe and stable investments</option>
-                        <option value="Medium" selected>Medium - Balanced approach</option>
-                        <option value="High">High - Growth-focused</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    Create Account
-                </button>
-            </form>
-
-            <div class="divider">
-                <p style="color: var(--text-secondary);">
-                    Already have an account?
-                    <a href="{% url 'login' %}" style="color: var(--primary); font-weight: 600;">Sign in</a>
-                </p>
             </div>
+        </div>
+
+        <form method="POST" action="{% url 'signup' %}">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    class="form-input"
+                    placeholder="Choose a unique username"
+                    required
+                    autofocus
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="form-input"
+                    placeholder="your@email.com"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password1" class="form-label">Password</label>
+                <input
+                    type="password"
+                    id="password1"
+                    name="password1"
+                    class="form-input"
+                    placeholder="Create a strong password"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password2" class="form-label">Confirm Password</label>
+                <input
+                    type="password"
+                    id="password2"
+                    name="password2"
+                    class="form-input"
+                    placeholder="Confirm your password"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="risk_tolerance" class="form-label">Investment Risk Tolerance</label>
+                <select name="risk_tolerance" id="risk_tolerance" class="form-input">
+                    <option value="Low">🛡️ Low - Stable & safe investments</option>
+                    <option value="Medium" selected>⚖️ Medium - Balanced approach</option>
+                    <option value="High">🚀 High - Growth-focused</option>
+                </select>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                Create Free Account →
+            </button>
+        </form>
+
+        <div class="divider">
+            <p class="divider-text">
+                Already have an account?
+                <a href="{% url 'login' %}" class="link">Sign in</a>
+            </p>
         </div>
     </div>
 </div>

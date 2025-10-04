@@ -1,87 +1,184 @@
 {% extends 'base.html' %}
 
-{% block title %}Login - Zelcry{% endblock %}
+{% block title %}Sign In - Zelcry{% endblock %}
 
 {% block extra_css %}
 <style>
     .auth-container {
         max-width: 480px;
-        margin: 2rem auto;
+        margin: 3rem auto;
+        padding: 0 1rem;
+    }
+
+    .auth-card {
+        background: var(--bg-card);
+        border: 2px solid var(--border-light);
+        border-radius: 28px;
+        padding: 3rem 2.5rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .auth-icon {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 1.5rem;
+        background: linear-gradient(135deg, #0ea5e9, #10b981);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+    }
+
+    .auth-title {
+        font-size: 2rem;
+        font-weight: 900;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #0ea5e9, #10b981);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .auth-subtitle {
+        color: var(--text-secondary);
+        font-size: 1rem;
     }
 
     .form-group {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.75rem;
     }
 
     .form-label {
         display: block;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: var(--text);
+        font-weight: 700;
+        margin-bottom: 0.625rem;
+        color: var(--text-primary);
+        font-size: 0.9375rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid var(--border-light);
+        border-radius: 14px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        font-family: inherit;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: var(--bg-card);
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 1.125rem;
+        background: linear-gradient(135deg, #0ea5e9, #10b981);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        font-weight: 800;
+        font-size: 1.0625rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
     }
 
     .divider {
         text-align: center;
         margin: 2rem 0;
         padding-top: 2rem;
-        border-top: 1px solid var(--border);
+        border-top: 2px solid var(--border-light);
+    }
+
+    .divider-text {
+        color: var(--text-secondary);
+        font-size: 0.9375rem;
+    }
+
+    .link {
+        color: var(--primary);
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .link:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+        .auth-card {
+            padding: 2rem 1.5rem;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="top-bar">
-    <div class="top-bar-content">
-        <a href="{% url 'index' %}" class="back-btn">←</a>
-        <h1 class="top-bar-title">Login</h1>
-        <button class="theme-toggle">🌙</button>
-    </div>
-</div>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-icon">🔐</div>
+            <h1 class="auth-title">Welcome Back!</h1>
+            <p class="auth-subtitle">Sign in to continue your crypto journey</p>
+        </div>
 
-<div class="content-area">
-    <div class="container auth-container">
-        <div class="card" style="padding: 2rem;">
-            <h1 style="text-align: center; margin-bottom: 2rem;">Welcome Back</h1>
+        <form method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
 
-            <form method="post" action="{% url 'login' %}">
-                {% csrf_token %}
-
-                <div class="form-group">
-                    <label for="username" class="form-label">Username</label>
-                    <input
-                        type="text"
-                        id="username"
-                        name="username"
-                        class="input-field"
-                        placeholder="Enter your username"
-                        required
-                        autofocus
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label for="password" class="form-label">Password</label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        class="input-field"
-                        placeholder="Enter your password"
-                        required
-                    >
-                </div>
-
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    Sign In
-                </button>
-            </form>
-
-            <div class="divider">
-                <p style="color: var(--text-secondary);">
-                    Don't have an account?
-                    <a href="{% url 'signup' %}" style="color: var(--primary); font-weight: 600;">Sign up</a>
-                </p>
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    class="form-input"
+                    placeholder="Enter your username"
+                    required
+                    autofocus
+                >
             </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="form-input"
+                    placeholder="Enter your password"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="submit-btn">
+                Sign In →
+            </button>
+        </form>
+
+        <div class="divider">
+            <p class="divider-text">
+                Don't have an account?
+                <a href="{% url 'signup' %}" class="link">Create one free</a>
+            </p>
         </div>
     </div>
 </div>
