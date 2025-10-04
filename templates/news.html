@@ -163,10 +163,12 @@
         {% for news in news_items %}
         <a href="{{ news.url }}" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit; display: block;">
             <div class="news-card">
-                <span class="news-category">{{ news.category }}</span>
+                {% if news.categories.0 %}
+                <span class="news-category">{{ news.categories.0 }}</span>
+                {% endif %}
                 <h3 class="news-title">{{ news.title }}</h3>
-                <p class="news-description">{{ news.description }}</p>
-                <div class="news-time">⏰ {{ news.time }}</div>
+                <p class="news-description">{{ news.body|truncatewords:30 }}</p>
+                <div class="news-time">⏰ {{ news.source }} • {{ news.published_on|timesince }} ago</div>
             </div>
         </a>
         {% endfor %}
