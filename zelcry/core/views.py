@@ -6,13 +6,16 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, F, DecimalField
-from .models import UserProfile, PortfolioAsset, CryptoAssetDetails, ChatMessage
+from .models import UserProfile, PortfolioAsset, CryptoAssetDetails, ChatMessage, Watchlist, PriceAlert, PortfolioSnapshot
 from .groq_ai import get_zelcry_ai_response, get_market_analysis
 import requests
 import json
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal
+import logging
+
+logger = logging.getLogger(__name__)
 
 def index(request):
     return render(request, 'index.html')
@@ -135,7 +138,8 @@ def dashboard(request):
                 asset.invested = float(asset.quantity) * float(asset.purchase_price)
                 asset.profit_loss = 0
                 asset.roi = 0
-        except:
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error fetching price for {asset.coin_id}: {e}")
             asset.current_price = 0
             asset.price_change_24h = 0
             asset.total_value = 0
@@ -365,15 +369,10 @@ def ai_advisor_query(request):
             
             return JsonResponse({'response': response})
         except Exception as e:
+            logger.error(f"Error in AI advisor query: {e}")
             return JsonResponse({'response': 'Sorry, I had trouble processing that. Please try again.'})
     
     return JsonResponse({'response': 'Invalid request'}, status=400)
-
-
-
-import uuid
-from .groq_ai import get_zelcry_ai_response, get_market_analysis
-from .models import ChatMessage
 
 @csrf_exempt
 def toggle_theme(request):
@@ -445,6 +444,7 @@ def guest_chat(request):
                     'messages_remaining': messages_remaining
                 })
         except Exception as e:
+            logger.error(f"Error in guest chat: {e}")
             return JsonResponse({'error': 'An error occurred. Please try again.'}, status=500)
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
@@ -557,8 +557,6 @@ def privacy_policy(request):
 
 @login_required
 def watchlist(request):
-    from .models import Watchlist
-    
     if request.method == 'POST':
         coin_id = request.POST.get('coin_id')
         coin_name = request.POST.get('coin_name')
@@ -593,7 +591,8 @@ def watchlist(request):
                 data = price_response.json().get(item.coin_id, {})
                 item.current_price = data.get('usd', 0)
                 item.price_change_24h = data.get('usd_24h_change', 0)
-        except:
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error fetching price for watchlist {item.coin_id}: {e}")
             item.current_price = 0
             item.price_change_24h = 0
     
@@ -603,7 +602,6 @@ def watchlist(request):
 
 @login_required
 def remove_from_watchlist(request, coin_id):
-    from .models import Watchlist
     Watchlist.objects.filter(user=request.user, coin_id=coin_id).delete()
     messages.success(request, 'Removed from watchlist')
     return redirect('watchlist')
@@ -611,8 +609,6 @@ def remove_from_watchlist(request, coin_id):
 
 @login_required
 def price_alerts(request):
-    from .models import PriceAlert
-    
     if request.method == 'POST':
         coin_id = request.POST.get('coin_id')
         coin_name = request.POST.get('coin_name')
@@ -654,7 +650,8 @@ def price_alerts(request):
                     alert.triggered_at = datetime.now()
                     alert.is_active = False
                     alert.save()
-        except:
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error fetching price for alert {alert.coin_id}: {e}")
             alert.current_price = 0
     
     triggered_alerts = PriceAlert.objects.filter(user=request.user, triggered=True).order_by('-triggered_at')[:10]
@@ -668,7 +665,6 @@ def price_alerts(request):
 
 @login_required
 def delete_alert(request, alert_id):
-    from .models import PriceAlert
     PriceAlert.objects.filter(user=request.user, id=alert_id).delete()
     messages.success(request, 'Alert deleted')
     return redirect('price_alerts')
@@ -676,8 +672,6 @@ def delete_alert(request, alert_id):
 
 @login_required
 def portfolio_analytics(request):
-    from .models import PortfolioAsset, PortfolioSnapshot
-    
     portfolio_assets = PortfolioAsset.objects.filter(user=request.user)
     snapshots = PortfolioSnapshot.objects.filter(user=request.user).order_by('-created_at')[:30]
     
