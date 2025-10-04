@@ -33,7 +33,7 @@ Tone: Professional, knowledgeable, supportive, and trustworthy."""
         
         chat_completion = client.chat.completions.create(
             messages=messages,
-            model="llama-3.3-70b-versatile",
+            model_name="llama-3.1-8b-instant",
             temperature=0.7,
             max_tokens=800,
             top_p=0.95
