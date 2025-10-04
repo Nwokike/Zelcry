@@ -334,7 +334,6 @@ def ai_advisor(request):
     return render(request, 'ai_advisor.html', context)
 
 @login_required
-@login_required
 @csrf_exempt
 def ai_advisor_query(request):
     if request.method == 'POST':
