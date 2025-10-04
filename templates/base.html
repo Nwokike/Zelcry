@@ -124,39 +124,85 @@
 
     {% block content %}{% endblock %}
 
-    <footer class="bg-dark text-light py-5 mt-5">
+    <footer class="bg-dark text-light py-5 mt-5 mb-mobile-nav">
         <div class="container">
             <div class="row">
                 <div class="col-md-4 mb-4">
-                    <h5 class="fw-bold"><i class="bi bi-currency-bitcoin"></i> Zelcry</h5>
-                    <p class="text-muted">AI-powered sustainable cryptocurrency investment platform for smart investors.</p>
+                    <h5 class="fw-bold text-light"><i class="bi bi-currency-bitcoin"></i> Zelcry</h5>
+                    <p class="text-light opacity-75">AI-powered sustainable cryptocurrency investment platform for smart investors.</p>
                 </div>
                 <div class="col-md-4 mb-4">
-                    <h6 class="fw-bold">Quick Links</h6>
+                    <h6 class="fw-bold text-light">Quick Links</h6>
                     <ul class="list-unstyled">
-                        <li><a href="{% url 'cryptocurrencies' %}" class="text-muted text-decoration-none">Cryptocurrencies</a></li>
-                        <li><a href="{% url 'news' %}" class="text-muted text-decoration-none">News</a></li>
-                        <li><a href="{% url 'ai_advisor' %}" class="text-muted text-decoration-none">AI Advisor</a></li>
+                        <li><a href="{% url 'cryptocurrencies' %}" class="text-light opacity-75 text-decoration-none hover-opacity-100">Cryptocurrencies</a></li>
+                        <li><a href="{% url 'news' %}" class="text-light opacity-75 text-decoration-none hover-opacity-100">News</a></li>
+                        <li><a href="{% url 'ai_advisor' %}" class="text-light opacity-75 text-decoration-none hover-opacity-100">AI Advisor</a></li>
                         {% if user.is_authenticated %}
-                        <li><a href="{% url 'dashboard' %}" class="text-muted text-decoration-none">Dashboard</a></li>
+                        <li><a href="{% url 'dashboard' %}" class="text-light opacity-75 text-decoration-none hover-opacity-100">Dashboard</a></li>
                         {% endif %}
                     </ul>
                 </div>
                 <div class="col-md-4 mb-4">
-                    <h6 class="fw-bold">Legal</h6>
+                    <h6 class="fw-bold text-light">Legal</h6>
                     <ul class="list-unstyled">
-                        <li><a href="{% url 'terms_of_service' %}" class="text-muted text-decoration-none">Terms of Service</a></li>
-                        <li><a href="{% url 'privacy_policy' %}" class="text-muted text-decoration-none">Privacy Policy</a></li>
+                        <li><a href="{% url 'terms_of_service' %}" class="text-light opacity-75 text-decoration-none hover-opacity-100">Terms of Service</a></li>
+                        <li><a href="{% url 'privacy_policy' %}" class="text-light opacity-75 text-decoration-none hover-opacity-100">Privacy Policy</a></li>
                     </ul>
                 </div>
             </div>
-            <hr class="border-secondary">
-            <div class="text-center text-muted">
+            <hr class="border-light opacity-25">
+            <div class="text-center text-light">
                 <p class="mb-0">&copy; 2024 Zelcry. All rights reserved.</p>
-                <p class="small">Investment disclaimer: Cryptocurrency investments carry risk. Please do your own research.</p>
+                <p class="small opacity-75">Investment disclaimer: Cryptocurrency investments carry risk. Please do your own research.</p>
             </div>
         </div>
     </footer>
+
+    <nav class="mobile-bottom-nav">
+        {% if user.is_authenticated %}
+        <a href="{% url 'dashboard' %}" class="mobile-nav-item {% if request.path == '/dashboard/' %}active{% endif %}">
+            <i class="bi bi-speedometer2"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="{% url 'cryptocurrencies' %}" class="mobile-nav-item {% if 'crypto' in request.path %}active{% endif %}">
+            <i class="bi bi-coin"></i>
+            <span>Cryptos</span>
+        </a>
+        <a href="{% url 'watchlist' %}" class="mobile-nav-item {% if 'watchlist' in request.path %}active{% endif %}">
+            <i class="bi bi-star"></i>
+            <span>Watchlist</span>
+        </a>
+        <a href="{% url 'news' %}" class="mobile-nav-item {% if 'news' in request.path %}active{% endif %}">
+            <i class="bi bi-newspaper"></i>
+            <span>News</span>
+        </a>
+        <a href="{% url 'ai_advisor' %}" class="mobile-nav-item {% if 'ai-advisor' in request.path %}active{% endif %}">
+            <i class="bi bi-robot"></i>
+            <span>AI</span>
+        </a>
+        {% else %}
+        <a href="{% url 'index' %}" class="mobile-nav-item {% if request.path == '/' %}active{% endif %}">
+            <i class="bi bi-house"></i>
+            <span>Home</span>
+        </a>
+        <a href="{% url 'cryptocurrencies' %}" class="mobile-nav-item {% if 'crypto' in request.path %}active{% endif %}">
+            <i class="bi bi-coin"></i>
+            <span>Explore</span>
+        </a>
+        <a href="{% url 'news' %}" class="mobile-nav-item {% if 'news' in request.path %}active{% endif %}">
+            <i class="bi bi-newspaper"></i>
+            <span>News</span>
+        </a>
+        <a href="{% url 'ai_advisor' %}" class="mobile-nav-item {% if 'ai-advisor' in request.path %}active{% endif %}">
+            <i class="bi bi-robot"></i>
+            <span>AI Advisor</span>
+        </a>
+        <a href="{% url 'login' %}" class="mobile-nav-item {% if 'login' in request.path %}active{% endif %}">
+            <i class="bi bi-person-circle"></i>
+            <span>Login</span>
+        </a>
+        {% endif %}
+    </nav>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>

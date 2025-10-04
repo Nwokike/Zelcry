@@ -78,11 +78,18 @@
             </div>
             <div class="col-lg-6">
                 <div class="card p-4">
-                    <h5 class="fw-bold mb-3">Featured Cryptocurrencies</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">Featured Cryptocurrencies</h5>
+                    </div>
                     <div id="crypto-preview" class="text-center">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{% url 'cryptocurrencies' %}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-grid-3x3-gap me-2"></i>View All Cryptocurrencies
+                        </a>
                     </div>
                 </div>
             </div>
@@ -137,6 +144,25 @@
         <a href="{% url 'signup' %}" class="btn btn-light btn-lg">Create Free Account</a>
     </div>
 </section>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Latest Crypto News</h2>
+            <p class="text-muted">Stay informed with the latest market updates</p>
+        </div>
+        <div id="home-news" class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading news...</span>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'news' %}" class="btn btn-outline-primary">
+                <i class="bi bi-newspaper me-2"></i>Read All News
+            </a>
+        </div>
+    </div>
+</section>
 {% endblock %}
 
 {% block extra_js %}
@@ -166,6 +192,35 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(() => {
             document.getElementById('crypto-preview').innerHTML = '<p class="text-muted">Unable to load preview</p>';
+        });
+    
+    fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN')
+        .then(response => response.json())
+        .then(data => {
+            if (data.Data && data.Data.length > 0) {
+                const newsContainer = document.getElementById('home-news');
+                const topNews = data.Data.slice(0, 3);
+                newsContainer.innerHTML = '<div class="row g-4">' + topNews.map(article => `
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <img src="${article.imageurl}" class="card-img-top" alt="${article.title}" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h6 class="card-title fw-bold">${article.title.substring(0, 80)}${article.title.length > 80 ? '...' : ''}</h6>
+                                <p class="card-text text-muted small">${article.body.substring(0, 120)}...</p>
+                                <a href="${article.url}" target="_blank" class="btn btn-sm btn-outline-primary">Read More</a>
+                            </div>
+                            <div class="card-footer bg-white border-top-0">
+                                <small class="text-muted">
+                                    <i class="bi bi-clock me-1"></i>${new Date(article.published_on * 1000).toLocaleDateString()}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                `).join('') + '</div>';
+            }
+        })
+        .catch(() => {
+            document.getElementById('home-news').innerHTML = '<p class="text-muted">Unable to load news. Please visit the <a href="/news/">News page</a>.</p>';
         });
 });
 </script>
