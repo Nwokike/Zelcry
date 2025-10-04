@@ -1,18 +1,8 @@
-# Render.com Blueprint for Zelcry
+# Render.com Blueprint for Zelcry (SQLite version)
 # Deploy with one click: https://render.com/docs/blueprint-spec
 
 services:
-  # PostgreSQL Database
-  - type: pserv
-    name: zelcry-db
-    env: docker
-    plan: free
-    disk:
-      name: zelcry-db-disk
-      mountPath: /var/lib/postgresql/data
-      sizeGB: 1
-
-  # Django Web Service
+  # Django Web Service (no external database)
   - type: web
     name: zelcry
     env: python
@@ -28,10 +18,6 @@ services:
         value: False
       - key: SECRET_KEY
         generateValue: true
-      - key: DATABASE_URL
-        fromDatabase:
-          name: zelcry-db
-          property: connectionString
       - key: GROQ_API_KEY
         sync: false  # Set manually in Render dashboard
       - key: CRYPTOCOMPARE_API_KEY
