@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, F, DecimalField
+from django.core.cache import cache
 from .models import UserProfile, PortfolioAsset, CryptoAssetDetails, ChatMessage, Watchlist, PriceAlert, PortfolioSnapshot
 from .groq_ai import get_zelcry_ai_response, get_market_analysis
 import requests
@@ -16,6 +17,59 @@ from decimal import Decimal
 import logging
 
 logger = logging.getLogger(__name__)
+
+def get_cached_coin_price(coin_id):
+    """Get cached coin price or fetch from API"""
+    cache_key = f'coin_price_{coin_id}'
+    cached_data = cache.get(cache_key)
+    
+    if cached_data:
+        return cached_data
+    
+    try:
+        response = requests.get(f'https://api.coingecko.com/api/v3/simple/price', params={
+            'ids': coin_id,
+            'vs_currencies': 'usd',
+            'include_24hr_change': True,
+            'include_market_cap': True,
+            'include_24hr_vol': True
+        }, timeout=5)
+        
+        if response.status_code == 200:
+            data = response.json().get(coin_id, {})
+            cache.set(cache_key, data, 300)
+            return data
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error fetching price for {coin_id}: {e}")
+    
+    return {}
+
+def get_cached_market_data(per_page=100):
+    """Get cached market data or fetch from API"""
+    cache_key = f'market_data_{per_page}'
+    cached_data = cache.get(cache_key)
+    
+    if cached_data:
+        return cached_data
+    
+    try:
+        response = requests.get('https://api.coingecko.com/api/v3/coins/markets', params={
+            'vs_currency': 'usd',
+            'order': 'market_cap_desc',
+            'per_page': per_page,
+            'page': 1,
+            'sparkline': False,
+            'price_change_percentage': '24h,7d'
+        }, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            cache.set(cache_key, data, 300)
+            return data
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error fetching market data: {e}")
+    
+    return []
 
 def index(request):
     return render(request, 'index.html')
@@ -84,18 +138,7 @@ def get_user_level_and_badge(xp_points):
 
 @login_required
 def dashboard(request):
-    try:
-        response = requests.get('https://api.coingecko.com/api/v3/coins/markets', params={
-            'vs_currency': 'usd',
-            'order': 'market_cap_desc',
-            'per_page': 100,
-            'page': 1,
-            'sparkline': False,
-            'price_change_percentage': '24h,7d'
-        }, timeout=10)
-        all_coins = response.json() if response.status_code == 200 else []
-    except:
-        all_coins = []
+    all_coins = get_cached_market_data(100)
     
     top_coins = all_coins[:50]
     
@@ -117,35 +160,13 @@ def dashboard(request):
     sustainable_count = 0
     
     for asset in portfolio_assets:
-        try:
-            coin_response = requests.get(f'https://api.coingecko.com/api/v3/simple/price', params={
-                'ids': asset.coin_id,
-                'vs_currencies': 'usd',
-                'include_24hr_change': True
-            }, timeout=5)
-            if coin_response.status_code == 200:
-                data = coin_response.json().get(asset.coin_id, {})
-                asset.current_price = data.get('usd', 0)
-                asset.price_change_24h = data.get('usd_24h_change', 0)
-                asset.total_value = float(asset.quantity) * asset.current_price
-                asset.invested = float(asset.quantity) * float(asset.purchase_price)
-                asset.profit_loss = asset.total_value - asset.invested
-                asset.roi = ((asset.profit_loss / asset.invested) * 100) if asset.invested > 0 else 0
-            else:
-                asset.current_price = 0
-                asset.price_change_24h = 0
-                asset.total_value = 0
-                asset.invested = float(asset.quantity) * float(asset.purchase_price)
-                asset.profit_loss = 0
-                asset.roi = 0
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Error fetching price for {asset.coin_id}: {e}")
-            asset.current_price = 0
-            asset.price_change_24h = 0
-            asset.total_value = 0
-            asset.invested = float(asset.quantity) * float(asset.purchase_price)
-            asset.profit_loss = 0
-            asset.roi = 0
+        data = get_cached_coin_price(asset.coin_id)
+        asset.current_price = data.get('usd', 0)
+        asset.price_change_24h = data.get('usd_24h_change', 0)
+        asset.total_value = float(asset.quantity) * asset.current_price
+        asset.invested = float(asset.quantity) * float(asset.purchase_price)
+        asset.profit_loss = asset.total_value - asset.invested
+        asset.roi = ((asset.profit_loss / asset.invested) * 100) if asset.invested > 0 else 0
         
         total_portfolio_value += asset.total_value
         total_invested += asset.invested

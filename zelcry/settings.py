@@ -145,6 +145,17 @@ LOGOUT_REDIRECT_URL = '/'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Cache Configuration
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'zelcry-cache',
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000
+        }
+    }
+}
+
 # AI Configuration - Zelcry AI (Groq)
 GROQ_API_KEY = config('GROQ_API_KEY', default='')
 
