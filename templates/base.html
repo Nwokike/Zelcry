@@ -295,18 +295,45 @@
     {% block content %}{% endblock %}
 
     <nav class="nav-bottom">
-        <a href="{% url 'index' %}" class="nav-item {% if request.path == '/' %}active{% endif %}">
-            <span class="nav-icon">🏠</span>
-            <span>Home</span>
-        </a>
-        <a href="{% url 'news' %}" class="nav-item {% if 'news' in request.path %}active{% endif %}">
-            <span class="nav-icon">📰</span>
-            <span>News</span>
+        {% if user.is_authenticated %}
+        <a href="{% url 'dashboard' %}" class="nav-item {% if 'dashboard' in request.path %}active{% endif %}">
+            <span class="nav-icon">📊</span>
+            <span>Portfolio</span>
         </a>
         <a href="{% url 'cryptocurrencies' %}" class="nav-item {% if 'cryptocurrencies' in request.path %}active{% endif %}">
             <span class="nav-icon">💰</span>
             <span>Cryptos</span>
         </a>
+        <a href="{% url 'ai_advisor' %}" class="nav-item {% if 'ai' in request.path %}active{% endif %}">
+            <span class="nav-icon">🤖</span>
+            <span>Zelcry AI</span>
+        </a>
+        <a href="{% url 'watchlist' %}" class="nav-item {% if 'watchlist' in request.path %}active{% endif %}">
+            <span class="nav-icon">⭐</span>
+            <span>Watchlist</span>
+        </a>
+        <a href="{% url 'price_alerts' %}" class="nav-item {% if 'alert' in request.path %}active{% endif %}">
+            <span class="nav-icon">🔔</span>
+            <span>Alerts</span>
+        </a>
+        {% else %}
+        <a href="{% url 'index' %}" class="nav-item {% if request.path == '/' %}active{% endif %}">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </a>
+        <a href="{% url 'cryptocurrencies' %}" class="nav-item {% if 'cryptocurrencies' in request.path %}active{% endif %}">
+            <span class="nav-icon">💰</span>
+            <span>Cryptos</span>
+        </a>
+        <a href="{% url 'news' %}" class="nav-item {% if 'news' in request.path %}active{% endif %}">
+            <span class="nav-icon">📰</span>
+            <span>News</span>
+        </a>
+        <a href="{% url 'ai_advisor' %}" class="nav-item {% if 'ai' in request.path %}active{% endif %}">
+            <span class="nav-icon">🤖</span>
+            <span>Zelcry AI</span>
+        </a>
+        {% endif %}
     </nav>
 
     <script>

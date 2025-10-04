@@ -161,12 +161,14 @@
     <section>
         <h2 class="section-title">📋 Latest Updates</h2>
         {% for news in news_items %}
-        <div class="news-card">
-            <span class="news-category">{{ news.category }}</span>
-            <h3 class="news-title">{{ news.title }}</h3>
-            <p class="news-description">{{ news.description }}</p>
-            <div class="news-time">⏰ {{ news.time }}</div>
-        </div>
+        <a href="{{ news.url }}" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit; display: block;">
+            <div class="news-card">
+                <span class="news-category">{{ news.category }}</span>
+                <h3 class="news-title">{{ news.title }}</h3>
+                <p class="news-description">{{ news.description }}</p>
+                <div class="news-time">⏰ {{ news.time }}</div>
+            </div>
+        </a>
         {% endfor %}
     </section>
 
