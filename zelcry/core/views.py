@@ -6,13 +6,70 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, F, DecimalField
-from .models import UserProfile, PortfolioAsset, CryptoAssetDetails, ChatMessage
+from django.core.cache import cache
+from .models import UserProfile, PortfolioAsset, CryptoAssetDetails, ChatMessage, Watchlist, PriceAlert, PortfolioSnapshot
 from .groq_ai import get_zelcry_ai_response, get_market_analysis
 import requests
 import json
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal
+import logging
+
+logger = logging.getLogger(__name__)
+
+def get_cached_coin_price(coin_id):
+    """Get cached coin price or fetch from API"""
+    cache_key = f'coin_price_{coin_id}'
+    cached_data = cache.get(cache_key)
+    
+    if cached_data:
+        return cached_data
+    
+    try:
+        response = requests.get(f'https://api.coingecko.com/api/v3/simple/price', params={
+            'ids': coin_id,
+            'vs_currencies': 'usd',
+            'include_24hr_change': True,
+            'include_market_cap': True,
+            'include_24hr_vol': True
+        }, timeout=5)
+        
+        if response.status_code == 200:
+            data = response.json().get(coin_id, {})
+            cache.set(cache_key, data, 300)
+            return data
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error fetching price for {coin_id}: {e}")
+    
+    return {}
+
+def get_cached_market_data(per_page=100):
+    """Get cached market data or fetch from API"""
+    cache_key = f'market_data_{per_page}'
+    cached_data = cache.get(cache_key)
+    
+    if cached_data:
+        return cached_data
+    
+    try:
+        response = requests.get('https://api.coingecko.com/api/v3/coins/markets', params={
+            'vs_currency': 'usd',
+            'order': 'market_cap_desc',
+            'per_page': per_page,
+            'page': 1,
+            'sparkline': False,
+            'price_change_percentage': '24h,7d'
+        }, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            cache.set(cache_key, data, 300)
+            return data
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error fetching market data: {e}")
+    
+    return []
 
 def index(request):
     return render(request, 'index.html')
@@ -81,18 +138,7 @@ def get_user_level_and_badge(xp_points):
 
 @login_required
 def dashboard(request):
-    try:
-        response = requests.get('https://api.coingecko.com/api/v3/coins/markets', params={
-            'vs_currency': 'usd',
-            'order': 'market_cap_desc',
-            'per_page': 100,
-            'page': 1,
-            'sparkline': False,
-            'price_change_percentage': '24h,7d'
-        }, timeout=10)
-        all_coins = response.json() if response.status_code == 200 else []
-    except:
-        all_coins = []
+    all_coins = get_cached_market_data(100)
     
     top_coins = all_coins[:50]
     
@@ -114,34 +160,13 @@ def dashboard(request):
     sustainable_count = 0
     
     for asset in portfolio_assets:
-        try:
-            coin_response = requests.get(f'https://api.coingecko.com/api/v3/simple/price', params={
-                'ids': asset.coin_id,
-                'vs_currencies': 'usd',
-                'include_24hr_change': True
-            }, timeout=5)
-            if coin_response.status_code == 200:
-                data = coin_response.json().get(asset.coin_id, {})
-                asset.current_price = data.get('usd', 0)
-                asset.price_change_24h = data.get('usd_24h_change', 0)
-                asset.total_value = float(asset.quantity) * asset.current_price
-                asset.invested = float(asset.quantity) * float(asset.purchase_price)
-                asset.profit_loss = asset.total_value - asset.invested
-                asset.roi = ((asset.profit_loss / asset.invested) * 100) if asset.invested > 0 else 0
-            else:
-                asset.current_price = 0
-                asset.price_change_24h = 0
-                asset.total_value = 0
-                asset.invested = float(asset.quantity) * float(asset.purchase_price)
-                asset.profit_loss = 0
-                asset.roi = 0
-        except:
-            asset.current_price = 0
-            asset.price_change_24h = 0
-            asset.total_value = 0
-            asset.invested = float(asset.quantity) * float(asset.purchase_price)
-            asset.profit_loss = 0
-            asset.roi = 0
+        data = get_cached_coin_price(asset.coin_id)
+        asset.current_price = data.get('usd', 0)
+        asset.price_change_24h = data.get('usd_24h_change', 0)
+        asset.total_value = float(asset.quantity) * asset.current_price
+        asset.invested = float(asset.quantity) * float(asset.purchase_price)
+        asset.profit_loss = asset.total_value - asset.invested
+        asset.roi = ((asset.profit_loss / asset.invested) * 100) if asset.invested > 0 else 0
         
         total_portfolio_value += asset.total_value
         total_invested += asset.invested
@@ -365,15 +390,10 @@ def ai_advisor_query(request):
             
             return JsonResponse({'response': response})
         except Exception as e:
+            logger.error(f"Error in AI advisor query: {e}")
             return JsonResponse({'response': 'Sorry, I had trouble processing that. Please try again.'})
     
     return JsonResponse({'response': 'Invalid request'}, status=400)
-
-
-
-import uuid
-from .groq_ai import get_zelcry_ai_response, get_market_analysis
-from .models import ChatMessage
 
 @csrf_exempt
 def toggle_theme(request):
@@ -445,6 +465,7 @@ def guest_chat(request):
                     'messages_remaining': messages_remaining
                 })
         except Exception as e:
+            logger.error(f"Error in guest chat: {e}")
             return JsonResponse({'error': 'An error occurred. Please try again.'}, status=500)
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
@@ -548,15 +569,15 @@ def news(request):
     return render(request, 'news.html', context)
 
 def terms_of_service(request):
-    return render(request, 'terms_of_service.html')
+    context = {'current_date': datetime.now()}
+    return render(request, 'terms_of_service.html', context)
 
 def privacy_policy(request):
-    return render(request, 'privacy_policy.html')
+    context = {'current_date': datetime.now()}
+    return render(request, 'privacy_policy.html', context)
 
 @login_required
 def watchlist(request):
-    from .models import Watchlist
-    
     if request.method == 'POST':
         coin_id = request.POST.get('coin_id')
         coin_name = request.POST.get('coin_name')
@@ -591,7 +612,8 @@ def watchlist(request):
                 data = price_response.json().get(item.coin_id, {})
                 item.current_price = data.get('usd', 0)
                 item.price_change_24h = data.get('usd_24h_change', 0)
-        except:
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error fetching price for watchlist {item.coin_id}: {e}")
             item.current_price = 0
             item.price_change_24h = 0
     
@@ -601,7 +623,6 @@ def watchlist(request):
 
 @login_required
 def remove_from_watchlist(request, coin_id):
-    from .models import Watchlist
     Watchlist.objects.filter(user=request.user, coin_id=coin_id).delete()
     messages.success(request, 'Removed from watchlist')
     return redirect('watchlist')
@@ -609,8 +630,6 @@ def remove_from_watchlist(request, coin_id):
 
 @login_required
 def price_alerts(request):
-    from .models import PriceAlert
-    
     if request.method == 'POST':
         coin_id = request.POST.get('coin_id')
         coin_name = request.POST.get('coin_name')
@@ -652,7 +671,8 @@ def price_alerts(request):
                     alert.triggered_at = datetime.now()
                     alert.is_active = False
                     alert.save()
-        except:
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error fetching price for alert {alert.coin_id}: {e}")
             alert.current_price = 0
     
     triggered_alerts = PriceAlert.objects.filter(user=request.user, triggered=True).order_by('-triggered_at')[:10]
@@ -666,7 +686,6 @@ def price_alerts(request):
 
 @login_required
 def delete_alert(request, alert_id):
-    from .models import PriceAlert
     PriceAlert.objects.filter(user=request.user, id=alert_id).delete()
     messages.success(request, 'Alert deleted')
     return redirect('price_alerts')
@@ -674,8 +693,6 @@ def delete_alert(request, alert_id):
 
 @login_required
 def portfolio_analytics(request):
-    from .models import PortfolioAsset, PortfolioSnapshot
-    
     portfolio_assets = PortfolioAsset.objects.filter(user=request.user)
     snapshots = PortfolioSnapshot.objects.filter(user=request.user).order_by('-created_at')[:30]
     
@@ -727,12 +744,42 @@ def portfolio_analytics(request):
         'values': [float(s.total_value) for s in reversed(snapshots)]
     }
     
+    for asset in portfolio_assets:
+        try:
+            price_response = requests.get(f'https://api.coingecko.com/api/v3/simple/price', params={
+                'ids': asset.coin_id,
+                'vs_currencies': 'usd',
+                'include_24hr_change': True
+            }, timeout=5)
+            if price_response.status_code == 200:
+                data = price_response.json().get(asset.coin_id, {})
+                asset.current_price = data.get('usd', 0)
+                asset.price_change_24h = data.get('usd_24h_change', 0)
+                asset.total_value = float(asset.quantity) * asset.current_price
+                asset.invested = float(asset.quantity) * float(asset.purchase_price)
+                asset.profit_loss = asset.total_value - asset.invested
+                asset.roi = ((asset.profit_loss / asset.invested) * 100) if asset.invested > 0 else 0
+        except:
+            asset.current_price = 0
+            asset.total_value = 0
+            asset.profit_loss = 0
+            asset.roi = 0
+
+    asset_labels = [asset.coin_name for asset in portfolio_assets]
+    asset_values = [float(asset.total_value) if hasattr(asset, 'total_value') else 0 for asset in portfolio_assets]
+    asset_roi = [float(asset.roi) if hasattr(asset, 'roi') else 0 for asset in portfolio_assets]
+    
     context = {
+        'portfolio_assets': portfolio_assets,
+        'total_assets': portfolio_assets.count(),
         'total_value': total_value,
         'total_invested': total_invested,
-        'profit_loss': profit_loss,
-        'roi': roi,
+        'total_profit_loss': profit_loss,
+        'total_roi': roi,
         'asset_allocation': asset_allocation,
+        'asset_labels': json.dumps(asset_labels),
+        'asset_values': json.dumps(asset_values),
+        'asset_roi': json.dumps(asset_roi),
         'snapshots': snapshots,
         'snapshot_data': json.dumps(snapshot_data)
     }
@@ -773,11 +820,37 @@ def market_insights(request):
     portfolio_assets = PortfolioAsset.objects.filter(user=request.user)
     risk_tolerance = request.user.profile.risk_tolerance
     
+    top_gainers = sorted(
+        [c for c in market_data if c.get('price_change_percentage_24h')],
+        key=lambda x: x['price_change_percentage_24h'],
+        reverse=True
+    )[:10]
+    
+    top_losers = sorted(
+        [c for c in market_data if c.get('price_change_percentage_24h')],
+        key=lambda x: x['price_change_percentage_24h']
+    )[:10]
+    
     context = {
-        'ai_insights': ai_insights,
-        'market_data': market_data,
+        'ai_analysis': ai_insights,
+        'top_gainers': top_gainers,
+        'top_losers': top_losers,
+        'market_overview': market_data,
         'portfolio_count': portfolio_assets.count(),
         'risk_tolerance': risk_tolerance
     }
     
     return render(request, 'market_insights.html', context)
+
+
+@csrf_exempt
+def refresh_crypto_data(request):
+    """Manually trigger crypto data refresh"""
+    if request.method == 'POST':
+        try:
+            from django.core.management import call_command
+            call_command('seed_crypto_data')
+            return JsonResponse({'success': True, 'message': 'Crypto data refreshed successfully'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)

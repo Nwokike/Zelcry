@@ -1,436 +1,113 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Zelcry AI Advisor - Smart Crypto Investment Insights{% endblock %}
-
-{% block extra_css %}
-<style>
-    .ai-hero {
-        background: var(--primary);
-        border-radius: 12px;
-        padding: 2rem;
-        text-align: center;
-        color: white;
-        margin-bottom: 2rem;
-    }
-
-    .ai-hero h1 {
-        font-size: 2.5rem;
-        font-weight: 900;
-        margin-bottom: 1rem;
-        position: relative;
-        z-index: 1;
-    }
-
-    .ai-hero p {
-        font-size: 1.125rem;
-        opacity: 0.95;
-        margin-bottom: 0;
-        position: relative;
-        z-index: 1;
-    }
-
-    .limit-banner {
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.1));
-        border: 2px solid var(--warning);
-        color: var(--warning);
-        padding: 1rem 1.5rem;
-        border-radius: 16px;
-        margin-bottom: 1.5rem;
-        text-align: center;
-        font-weight: 700;
-        font-size: 0.9375rem;
-    }
-
-    .chat-container {
-        background: var(--bg-card);
-        border: 2px solid var(--border-light);
-        border-radius: 24px;
-        overflow: hidden;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        margin-bottom: 2rem;
-    }
-
-    .chat-messages {
-        height: 500px;
-        overflow-y: auto;
-        padding: 2rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-        background: var(--bg-secondary);
-    }
-
-    .chat-messages::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .chat-messages::-webkit-scrollbar-track {
-        background: var(--bg-secondary);
-    }
-
-    .chat-messages::-webkit-scrollbar-thumb {
-        background: var(--border-medium);
-        border-radius: 10px;
-    }
-
-    .message {
-        display: flex;
-        gap: 1rem;
-        animation: messageSlide 0.3s ease-out;
-    }
-
-    @keyframes messageSlide {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .message-avatar {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        flex-shrink: 0;
-    }
-
-    .message-user {
-        flex-direction: row-reverse;
-    }
-
-    .message-user .message-avatar {
-        background: linear-gradient(135deg, #0ea5e9, #10b981);
-    }
-
-    .message-ai .message-avatar {
-        background: var(--bg-card);
-        border: 2px solid var(--border-light);
-    }
-
-    .message-content {
-        max-width: 75%;
-        padding: 1.25rem 1.5rem;
-        border-radius: 20px;
-        line-height: 1.7;
-        font-size: 1rem;
-    }
-
-    .message-user .message-content {
-        background: linear-gradient(135deg, #0ea5e9, #10b981);
-        color: white;
-        border-bottom-right-radius: 4px;
-    }
-
-    .message-ai .message-content {
-        background: var(--bg-card);
-        color: var(--text-primary);
-        border: 2px solid var(--border-light);
-        border-bottom-left-radius: 4px;
-    }
-
-    .chat-input-container {
-        padding: 1.5rem;
-        background: var(--bg-card);
-        border-top: 2px solid var(--border-light);
-    }
-
-    .chat-input-wrapper {
-        display: flex;
-        gap: 1rem;
-        align-items: flex-end;
-    }
-
-    .chat-input {
-        flex: 1;
-        min-height: 56px;
-        max-height: 120px;
-        padding: 1rem 1.5rem;
-        border: 2px solid var(--border-light);
-        border-radius: 50px;
-        font-size: 1rem;
-        resize: none;
-        background: var(--bg-secondary);
-        color: var(--text-primary);
-        font-family: inherit;
-        transition: all 0.3s;
-    }
-
-    .chat-input:focus {
-        outline: none;
-        border-color: var(--primary);
-        background: var(--bg-card);
-    }
-
-    .send-btn {
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #0ea5e9, #10b981);
-        border: none;
-        color: white;
-        font-size: 1.5rem;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s;
-        box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
-        flex-shrink: 0;
-    }
-
-    .send-btn:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4);
-    }
-
-    .send-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    .quick-questions {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
-        margin-top: 2rem;
-    }
-
-    .quick-question {
-        padding: 1.25rem;
-        background: var(--bg-card);
-        border: 2px solid var(--border-light);
-        border-radius: 16px;
-        cursor: pointer;
-        transition: all 0.3s;
-        font-weight: 600;
-        text-align: center;
-    }
-
-    .quick-question:hover {
-        border-color: var(--primary);
-        background: linear-gradient(135deg, rgba(13, 148, 136, 0.1), rgba(16, 185, 129, 0.1));
-        transform: translateY(-2px);
-    }
-
-    .loading-indicator {
-        display: none;
-        align-items: center;
-        gap: 0.5rem;
-        color: var(--text-secondary);
-        margin-top: 1rem;
-    }
-
-    .loading-indicator.active {
-        display: flex;
-    }
-
-    .loading-dots {
-        display: flex;
-        gap: 0.375rem;
-    }
-
-    .loading-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--primary);
-        animation: loadingDot 1.4s ease-in-out infinite;
-    }
-
-    .loading-dot:nth-child(2) {
-        animation-delay: 0.2s;
-    }
-
-    .loading-dot:nth-child(3) {
-        animation-delay: 0.4s;
-    }
-
-    @keyframes loadingDot {
-        0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
-        40% { transform: scale(1.2); opacity: 1; }
-    }
-
-    @media (max-width: 768px) {
-        .ai-hero h1 {
-            font-size: 2rem;
-        }
-
-        .message-content {
-            max-width: 85%;
-        }
-
-        .quick-questions {
-            grid-template-columns: 1fr;
-        }
-
-        .chat-messages {
-            height: 400px;
-        }
-    }
-</style>
-{% endblock %}
+{% block title %}AI Advisor - Zelcry{% endblock %}
 
 {% block content %}
-<div class="container" style="padding-top: 2rem; max-width: 1000px; margin: 0 auto;">
-    <div class="ai-hero">
-        <h1>🤖 Zelcry AI Advisor</h1>
-        <p>Your personal AI-powered crypto investment assistant</p>
-    </div>
-
-    {% if not user.is_authenticated %}
-    <div class="limit-banner" id="limitBanner" style="display: none;">
-        ⚠️ <span id="limitText"></span>
-    </div>
-    {% endif %}
-
+<div class="container py-4">
     <div class="chat-container">
-        <div class="chat-messages" id="chatMessages">
-            <div class="message message-ai">
-                <div class="message-avatar">🤖</div>
-                <div class="message-content">
-                    👋 Hello! I'm Zelcry AI, your crypto investment advisor. I can help you with:
-                    <br><br>
-                    • Portfolio analysis and recommendations<br>
-                    • Cryptocurrency market insights<br>
-                    • Investment strategies based on your risk tolerance<br>
-                    • Educational crypto concepts<br>
-                    <br>
-                    How can I assist you today?
-                </div>
+        <div class="text-center mb-4">
+            <i class="bi bi-robot text-primary" style="font-size: 64px;"></i>
+            <h2 class="fw-bold mt-3">Zelcry AI Advisor</h2>
+            <p class="text-muted">Get personalized crypto investment insights powered by advanced AI</p>
+        </div>
+
+        {% if not user.is_authenticated %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            You have <strong id="messages-remaining">3</strong> free AI conversations. 
+            <a href="{% url 'signup' %}" class="alert-link">Sign up</a> for unlimited access!
+        </div>
+        {% endif %}
+
+        <div id="chat-messages" class="mb-4" style="min-height: 400px; max-height: 600px; overflow-y: auto;">
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <form id="chat-form">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="message-input" placeholder="Ask me anything about crypto investing..." required>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-send"></i> Send
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
-        <div class="chat-input-container">
-            <div class="chat-input-wrapper">
-                <textarea
-                    id="chatInput"
-                    class="chat-input"
-                    placeholder="Ask me anything about crypto investing..."
-                    rows="1"
-                    onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); sendMessage();}"
-                ></textarea>
-                <button id="sendBtn" class="send-btn" onclick="sendMessage()">
-                    <span>→</span>
-                </button>
-            </div>
-            <div class="loading-indicator" id="loadingIndicator">
-                <span>Zelcry AI is thinking</span>
-                <div class="loading-dots">
-                    <div class="loading-dot"></div>
-                    <div class="loading-dot"></div>
-                    <div class="loading-dot"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="quick-questions">
-        <div class="quick-question" onclick="askQuestion('What are the best sustainable cryptocurrencies to invest in?')">
-            🌱 Best Sustainable Cryptos?
-        </div>
-        <div class="quick-question" onclick="askQuestion('How should I diversify my crypto portfolio?')">
-            📊 Portfolio Diversification Tips
-        </div>
-        <div class="quick-question" onclick="askQuestion('What is the difference between Bitcoin and Ethereum?')">
-            💡 Bitcoin vs Ethereum
-        </div>
-        <div class="quick-question" onclick="askQuestion('How do I manage risk in crypto investing?')">
-            🛡️ Risk Management Strategies
+        <div class="mt-3 text-center text-muted small">
+            <i class="bi bi-shield-check me-1"></i>
+            Your conversations are private and secure
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-let messagesRemaining = 3;
-let limitReached = false;
+const chatMessages = document.getElementById('chat-messages');
+const chatForm = document.getElementById('chat-form');
+const messageInput = document.getElementById('message-input');
+const messagesRemaining = document.getElementById('messages-remaining');
 
-function scrollToBottom() {
-    const chatMessages = document.getElementById('chatMessages');
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
+chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const message = messageInput.value.trim();
+    if (!message) return;
 
-function addMessage(content, isUser = false) {
-    const chatMessages = document.getElementById('chatMessages');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${isUser ? 'message-user' : 'message-ai'}`;
-    
-    messageDiv.innerHTML = `
-        <div class="message-avatar">${isUser ? '👤' : '🤖'}</div>
-        <div class="message-content">${content.replace(/\n/g, '<br>')}</div>
-    `;
-    
-    chatMessages.appendChild(messageDiv);
-    scrollToBottom();
-}
+    addMessage(message, 'user');
+    messageInput.value = '';
 
-async function sendMessage() {
-    const input = document.getElementById('chatInput');
-    const message = input.value.trim();
-    
-    if (!message || limitReached) return;
-    
-    addMessage(message, true);
-    input.value = '';
-    
-    const sendBtn = document.getElementById('sendBtn');
-    const loadingIndicator = document.getElementById('loadingIndicator');
-    
-    sendBtn.disabled = true;
-    loadingIndicator.classList.add('active');
-    
+    const loadingMsg = addMessage('Thinking...', 'ai', true);
+
     try {
-        const response = await fetch('{% if user.is_authenticated %}{% url "ai_advisor_query" %}{% else %}/guest-chat/{% endif %}', {
+        const response = await fetch('{% if user.is_authenticated %}{% url "ai_advisor_query" %}{% else %}{% url "guest_chat" %}{% endif %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': '{{ csrf_token }}'
             },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify({ message })
         });
-        
+
         const data = await response.json();
-        
-        loadingIndicator.classList.remove('active');
-        sendBtn.disabled = false;
-        
-        if (data.response) {
-            addMessage(data.response);
-        }
-        
-        if (data.limit_reached) {
-            limitReached = true;
-            document.getElementById('limitBanner').style.display = 'block';
-            document.getElementById('limitText').textContent = data.response;
-            sendBtn.disabled = true;
-        } else if (data.messages_remaining !== null && data.messages_remaining !== undefined) {
-            messagesRemaining = data.messages_remaining;
-            if (messagesRemaining > 0) {
-                document.getElementById('limitBanner').style.display = 'block';
-                document.getElementById('limitText').textContent = `You have ${messagesRemaining} free message${messagesRemaining !== 1 ? 's' : ''} remaining. Sign up for unlimited AI chats!`;
+        loadingMsg.remove();
+
+        addMessage(data.response, 'ai');
+
+        if (data.messages_remaining !== undefined && data.messages_remaining !== null) {
+            messagesRemaining.textContent = data.messages_remaining;
+            if (data.limit_reached) {
+                messageInput.disabled = true;
+                chatForm.querySelector('button').disabled = true;
             }
         }
     } catch (error) {
-        loadingIndicator.classList.remove('active');
-        sendBtn.disabled = false;
-        addMessage('Sorry, I encountered an error. Please try again.');
+        loadingMsg.remove();
+        addMessage('Sorry, I encountered an error. Please try again.', 'ai');
     }
-}
-
-function askQuestion(question) {
-    document.getElementById('chatInput').value = question;
-    sendMessage();
-}
-
-document.getElementById('chatInput').addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
 });
+
+function addMessage(text, type, isLoading = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message text-${type === 'user' ? 'end' : 'start'} mb-3`;
+    
+    const bubble = document.createElement('div');
+    bubble.className = type === 'user' ? 'user-message' : 'ai-message';
+    bubble.textContent = text;
+    
+    if (isLoading) {
+        bubble.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Thinking...';
+    }
+    
+    messageDiv.appendChild(bubble);
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    return messageDiv;
+}
+
+addMessage("Hello! I'm Zelcry AI, your crypto investment advisor. How can I help you today?", 'ai');
 </script>
 {% endblock %}

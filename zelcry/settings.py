@@ -19,16 +19,22 @@ import dj_database_url  # Added for Render database connection
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config(
-    'SECRET_KEY',
-    default='django-insecure-vsfk^6bblojx-9-rxpv(ql+u5461mi-zsca%81(&zvwon6oc+z'
-)
+# For development, a default key is provided. For production, set SECRET_KEY in environment
+SECRET_KEY = config('SECRET_KEY', default='dev-b@1ta4q%y$a$9x@b&asyqqa4tlmc#ba=p(_!k^ae7g#2%f47a$')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-# --- ALLOWED_HOSTS ---
-ALLOWED_HOSTS = ['*']
+# Detect Render environment
+RENDER = os.environ.get('RENDER', False)
+
+# ALLOWED_HOSTS Configuration
+if RENDER:
+    ALLOWED_HOSTS = [os.environ.get('RENDER_EXTERNAL_HOSTNAME')]
+elif DEBUG:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '*']
+else:
+    ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
 
 # Application definition
@@ -76,19 +82,21 @@ WSGI_APPLICATION = 'zelcry.wsgi.application'
 
 
 # Database Configuration
-# SQLite for development, PostgreSQL (Neon) for production
+# SQLite for development, PostgreSQL for production (Render, Oracle Cloud, Neon, etc.)
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-if os.environ.get('DATABASE_URL') and 'neon' in os.environ.get('DATABASE_URL', '').lower():
+if os.environ.get('DATABASE_URL'):
+    # Production: Use PostgreSQL from DATABASE_URL
     DATABASES = {
         'default': dj_database_url.config(
             default=os.environ.get('DATABASE_URL'),
-            conn_max_age=300,
+            conn_max_age=600,
             conn_health_checks=True,
-            ssl_require=True
+            ssl_require=False  # Render PostgreSQL doesn't require SSL by default
         )
     }
 else:
+    # Development: Use SQLite
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -133,7 +141,6 @@ PWA_APP_ORIENTATION = 'portrait-primary'
 PWA_APP_START_URL = '/'
 PWA_APP_ICONS = [
     {'src': '/static/icons/icon-192x192.png', 'sizes': '192x192', 'type': 'image/png'},
-    {'src': '/static/icons/icon-512x512.png', 'sizes': '512x512', 'type': 'image/png'},
 ]
 
 
@@ -145,6 +152,17 @@ LOGOUT_REDIRECT_URL = '/'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Cache Configuration
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'zelcry-cache',
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000
+        }
+    }
+}
 
 # AI Configuration - Zelcry AI (Groq)
 GROQ_API_KEY = config('GROQ_API_KEY', default='')

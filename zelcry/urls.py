@@ -42,4 +42,5 @@ urlpatterns = [
     path('price-alerts/delete/<int:alert_id>/', views.delete_alert, name='delete_alert'),
     path('portfolio-analytics/', views.portfolio_analytics, name='portfolio_analytics'),
     path('market-insights/', views.market_insights, name='market_insights'),
+    path('refresh-crypto-data/', views.refresh_crypto_data, name='refresh_crypto_data'),
 ]

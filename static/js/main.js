@@ -1,136 +1,93 @@
 document.addEventListener('DOMContentLoaded', function() {
-  initTheme();
-  initBackButton();
-  initModals();
-  initAlerts();
-  initProgressCircles();
+    console.log('Zelcry initialized');
+    
+    const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
+    
+    const alerts = document.querySelectorAll('.alert-dismissible');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }, 5000);
+    });
 });
 
-function initTheme() {
-  const themeToggle = document.getElementById('theme-toggle');
-  const savedTheme = localStorage.getItem('theme') || 'light';
-
-  document.documentElement.setAttribute('data-theme', savedTheme);
-
-  if (themeToggle) {
-    updateThemeIcon(savedTheme);
-
-    themeToggle.addEventListener('click', function() {
-      const currentTheme = document.documentElement.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-      document.documentElement.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-      updateThemeIcon(newTheme);
-    });
-  }
-}
-
-function updateThemeIcon(theme) {
-  const themeToggle = document.getElementById('theme-toggle');
-  if (themeToggle) {
-    themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
-  }
-}
-
-function initBackButton() {
-  const backButton = document.querySelector('.back-button');
-  if (backButton) {
-    backButton.addEventListener('click', function() {
-      window.history.back();
-    });
-  }
-}
-
-function initModals() {
-  const modals = document.querySelectorAll('.modal');
-
-  modals.forEach(modal => {
-    const closeBtn = modal.querySelector('.modal-close');
-
-    if (closeBtn) {
-      closeBtn.addEventListener('click', () => {
-        modal.classList.remove('active');
-        modal.style.display = 'none';
-      });
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
     }
+    return cookieValue;
+}
 
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.classList.remove('active');
-        modal.style.display = 'none';
-      }
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(amount);
+}
+
+function formatPercentage(value) {
+    const sign = value >= 0 ? '+' : '';
+    return `${sign}${value.toFixed(2)}%`;
+}
+
+function showLoading(show = true) {
+    let overlay = document.getElementById('loading-overlay');
+    if (show) {
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'loading-overlay';
+            overlay.className = 'loading-overlay';
+            overlay.innerHTML = '<div class="spinner-border text-light" role="status"><span class="visually-hidden">Loading...</span></div>';
+            document.body.appendChild(overlay);
+        }
+        overlay.style.display = 'flex';
+    } else {
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+    }
+}
+
+async function refreshCryptoData() {
+    try {
+        showLoading(true);
+        const response = await fetch('/refresh-crypto-data/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert('Failed to refresh data. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error refreshing data:', error);
+        alert('An error occurred. Please try again.');
+    } finally {
+        showLoading(false);
+    }
+}
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/serviceworker.js')
+            .then(registration => console.log('ServiceWorker registered'))
+            .catch(err => console.log('ServiceWorker registration failed'));
     });
-  });
-}
-
-function openModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (modal) {
-    modal.style.display = 'flex';
-    setTimeout(() => {
-      modal.classList.add('active');
-    }, 10);
-  }
-}
-
-function closeModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (modal) {
-    modal.classList.remove('active');
-    setTimeout(() => {
-      modal.style.display = 'none';
-    }, 300);
-  }
-}
-
-function initAlerts() {
-  const alerts = document.querySelectorAll('.alert');
-
-  alerts.forEach(alert => {
-    setTimeout(() => {
-      alert.style.animation = 'fadeOut 0.3s ease';
-      setTimeout(() => {
-        alert.remove();
-      }, 300);
-    }, 5000);
-  });
-}
-
-function initProgressCircles() {
-  const progressCircles = document.querySelectorAll('.circular-progress');
-  progressCircles.forEach(circle => {
-    const score = circle.getAttribute('data-score');
-    circle.style.setProperty('--score', score);
-  });
-}
-
-function formatNumber(num) {
-  if (num >= 1000000000) {
-    return '$' + (num / 1000000000).toFixed(2) + 'B';
-  }
-  if (num >= 1000000) {
-    return '$' + (num / 1000000).toFixed(2) + 'M';
-  }
-  if (num >= 1000) {
-    return '$' + (num / 1000).toFixed(2) + 'K';
-  }
-  return '$' + num.toFixed(2);
-}
-
-function formatPercent(num) {
-  const formatted = num.toFixed(2);
-  return (num >= 0 ? '+' : '') + formatted + '%';
-}
-
-function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
 }

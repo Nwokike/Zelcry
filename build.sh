@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
-# Build script for production deployment
-# Runs during deployment to prepare the application
+# Render.com build script for Zelcry
+# Exits on error
+set -o errexit
 
-set -o errexit  # Exit on error
-
-echo "Installing dependencies..."
+echo "Installing Python dependencies..."
 pip install -r requirements.txt
 
 echo "Collecting static files..."
@@ -14,6 +13,6 @@ echo "Running database migrations..."
 python manage.py migrate
 
 echo "Seeding cryptocurrency data..."
-python manage.py seed_crypto_data || echo "Seed data already exists or failed"
+python manage.py seed_crypto_data
 
-echo "Build complete!"
+echo "Build completed successfully!"
