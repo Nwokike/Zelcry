@@ -318,12 +318,15 @@ def crypto_details(request, coin_id):
     
     return render(request, 'crypto_details.html', context)
 
-@login_required
 def ai_advisor(request):
-    portfolio_assets = PortfolioAsset.objects.filter(user=request.user)
-    portfolio_count = portfolio_assets.count()
-    risk_tolerance = request.user.profile.risk_tolerance
-    
+    if request.user.is_authenticated:
+        portfolio_assets = PortfolioAsset.objects.filter(user=request.user)
+        portfolio_count = portfolio_assets.count()
+        risk_tolerance = request.user.profile.risk_tolerance
+    else:
+        portfolio_count = 0
+        risk_tolerance = 'Medium'
+
     context = {
         'portfolio_count': portfolio_count,
         'risk_tolerance': risk_tolerance,
@@ -383,46 +386,68 @@ def toggle_theme(request):
         return JsonResponse({'success': True})
     return JsonResponse({'success': False})
 
+@csrf_exempt
 def guest_chat(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        message = data.get('message', '')
-        
-        if request.user.is_authenticated:
-            user_chats = ChatMessage.objects.filter(user=request.user).count()
-            response = get_zelcry_ai_response(message, f"User has {user_chats} previous chats")
-            
-            ChatMessage.objects.create(
-                user=request.user,
-                message=message,
-                response=response
-            )
-        else:
-            session_id = request.session.get('guest_chat_id')
-            if not session_id:
-                session_id = str(uuid.uuid4())
-                request.session['guest_chat_id'] = session_id
-            
-            guest_chat_count = request.session.get('guest_chat_count', 0)
-            
-            if guest_chat_count >= 1:
+        try:
+            data = json.loads(request.body)
+            message = data.get('message', '')
+
+            if not message:
+                return JsonResponse({'error': 'Message is required'}, status=400)
+
+            if request.user.is_authenticated:
+                user_chats = ChatMessage.objects.filter(user=request.user).count()
+                response = get_zelcry_ai_response(message, f"User: {request.user.username}, Portfolio size: {request.user.portfolio_assets.count()} cryptocurrencies")
+
+                ChatMessage.objects.create(
+                    user=request.user,
+                    message=message,
+                    response=response
+                )
+
                 return JsonResponse({
-                    'response': "You've used your free AI chat! Sign up to continue chatting with Beacon.",
-                    'limit_reached': True
+                    'response': response,
+                    'limit_reached': False,
+                    'messages_remaining': None
                 })
-            
-            response = get_zelcry_ai_response(message, "This is a guest user - encourage them to sign up")
-            
-            ChatMessage.objects.create(
-                session_id=session_id,
-                message=message,
-                response=response
-            )
-            
-            request.session['guest_chat_count'] = guest_chat_count + 1
-        
-        return JsonResponse({'response': response, 'limit_reached': False})
-    
+            else:
+                session_id = request.session.get('guest_chat_id')
+                if not session_id:
+                    session_id = str(uuid.uuid4())
+                    request.session['guest_chat_id'] = session_id
+
+                guest_chat_count = request.session.get('guest_chat_count', 0)
+
+                if guest_chat_count >= 3:
+                    return JsonResponse({
+                        'response': "You've reached your limit of 3 free AI chats! Create a free account to continue chatting with Zelcry AI and unlock unlimited conversations plus powerful portfolio tracking features.",
+                        'limit_reached': True,
+                        'messages_remaining': 0
+                    })
+
+                response = get_zelcry_ai_response(
+                    message,
+                    f"This is a guest user trying out the app. They have {3 - guest_chat_count} messages left. Be helpful and encourage them to sign up after their trial."
+                )
+
+                ChatMessage.objects.create(
+                    session_id=session_id,
+                    message=message,
+                    response=response
+                )
+
+                request.session['guest_chat_count'] = guest_chat_count + 1
+                messages_remaining = 3 - (guest_chat_count + 1)
+
+                return JsonResponse({
+                    'response': response,
+                    'limit_reached': False,
+                    'messages_remaining': messages_remaining
+                })
+        except Exception as e:
+            return JsonResponse({'error': 'An error occurred. Please try again.'}, status=500)
+
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 def cryptocurrencies(request):

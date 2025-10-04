@@ -3,355 +3,354 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>{% block title %}Zelcry - Smart Sustainable Crypto Investing{% endblock %}</title>
+    <title>{% block title %}Zelcry - Smart Crypto Investment Platform{% endblock %}</title>
     {% load pwa %}
     {% progressive_web_app_meta %}
+    <link rel="stylesheet" href="/static/css/style.css">
     <style>
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #8b5cf6;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            
-            --bg: #ffffff;
-            --bg-secondary: #f9fafb;
-            --text: #111827;
-            --text-secondary: #6b7280;
-            --border: #e5e7eb;
-            --shadow: rgba(0, 0, 0, 0.1);
-        }
-
-        [data-theme="dark"] {
-            --bg: #0f172a;
-            --bg-secondary: #1e293b;
-            --text: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --border: #334155;
-            --shadow: rgba(0, 0, 0, 0.3);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            transition: background 0.3s, color 0.3s;
-            padding-bottom: 80px;
-        }
-
-        .container {
-            max-width: 640px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
-        .top-bar {
-            position: sticky;
+        .header {
+            position: fixed;
             top: 0;
-            background: var(--bg);
-            border-bottom: 1px solid var(--border);
-            z-index: 100;
-            padding: 1rem;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-light);
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
         }
 
-        .top-bar-content {
+        .header-content {
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            max-width: 640px;
+            max-width: 1280px;
             margin: 0 auto;
+            padding: 0 calc(var(--spacing) * 3);
         }
 
         .logo {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             font-weight: 800;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             text-decoration: none;
+            letter-spacing: -0.02em;
         }
 
-        .back-btn {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 1.5rem;
-        }
-
-        .top-bar-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-        }
-
-        .top-bar-right {
+        .header-right {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-        }
-
-        .user-badge {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.25rem 0.75rem;
-            background: var(--bg-secondary);
-            border-radius: 9999px;
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-
-        .xp-badge {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 700;
+            gap: calc(var(--spacing) * 2);
         }
 
         .theme-toggle {
-            background: none;
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-full);
+            background: var(--bg-secondary);
             border: none;
-            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1.25rem;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-hover);
+            transform: rotate(15deg) scale(1.05);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: calc(var(--spacing) * 1.5);
+            padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-full);
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .xp-badge {
+            padding: calc(var(--spacing) * 0.75) calc(var(--spacing) * 1.5);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: var(--radius-full);
+            font-size: 0.8125rem;
+            font-weight: 700;
+            box-shadow: var(--shadow-sm);
         }
 
         .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: calc(var(--spacing) * 0.75);
+            padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 3);
+            border-radius: var(--radius-md);
+            font-size: 0.9375rem;
             font-weight: 600;
+            border: none;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
-            display: inline-block;
-            text-align: center;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: white;
+            box-shadow: var(--shadow-sm);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px var(--shadow);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
 
         .btn-outline {
             background: transparent;
             color: var(--primary);
-            border: 2px solid var(--primary);
+            border: 2px solid var(--border-medium);
         }
 
         .btn-outline:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        .card {
-            background: var(--bg);
-            border-radius: 1rem;
-            padding: 1.25rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--border);
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 0.875rem;
-            border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            font-size: 1rem;
-            background: var(--bg);
-            color: var(--text);
-        }
-
-        .input-field:focus {
-            outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            background: var(--bg-secondary);
         }
 
-        .nav-bottom {
+        .bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: var(--bg);
-            border-top: 1px solid var(--border);
+            height: 75px;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-light);
+            z-index: 1000;
+            box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.05);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .bottom-nav-content {
+            height: 100%;
             display: flex;
+            align-items: center;
             justify-content: space-around;
-            padding: 0.75rem 0;
-            padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-            z-index: 100;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 calc(var(--spacing) * 2);
         }
 
         .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            text-decoration: none;
-            color: var(--text-secondary);
-            font-size: 0.75rem;
-            padding: 0.25rem 1rem;
-            transition: color 0.2s;
+            gap: calc(var(--spacing) * 0.5);
+            padding: calc(var(--spacing) * 1) calc(var(--spacing) * 1.5);
+            border-radius: var(--radius-md);
+            color: var(--text-tertiary);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             flex: 1;
-            max-width: 120px;
+            max-width: 100px;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
         }
 
         .nav-item.active {
             color: var(--primary);
+            background: var(--bg-secondary);
         }
 
         .nav-icon {
             font-size: 1.5rem;
-            margin-bottom: 0.25rem;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-item.active .nav-icon {
+            transform: scale(1.1);
+        }
+
+        .nav-label {
+            font-size: 0.75rem;
+            font-weight: 600;
         }
 
         .content-area {
-            padding: 1rem 0;
-            padding-bottom: 1rem;
-            min-height: calc(100vh - 80px);
+            padding-top: 70px;
+            padding-bottom: 90px;
+            min-height: 100vh;
         }
 
         .alert {
-            padding: 1rem;
-            border-radius: 0.75rem;
-            margin-bottom: 1rem;
+            padding: calc(var(--spacing) * 2);
+            border-radius: var(--radius-md);
+            margin-bottom: calc(var(--spacing) * 2);
+            border: 1px solid;
+            display: flex;
+            align-items: center;
+            gap: calc(var(--spacing) * 1.5);
+            animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .alert-success {
-            background: #d1fae5;
-            color: #065f46;
+            background: var(--color-emerald-50);
+            border-color: var(--success);
+            color: var(--color-emerald-800);
+        }
+
+        [data-theme="dark"] .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
         }
 
         .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
+            background: var(--color-rose-50);
+            border-color: var(--error);
+            color: var(--color-rose-800);
         }
 
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid var(--border);
-            border-top: 3px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        [data-theme="dark"] .alert-error {
+            background: rgba(244, 63, 94, 0.1);
+            color: var(--error);
         }
 
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        @media (max-width: 480px) {
-            .container {
-                padding: 0 0.75rem;
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 calc(var(--spacing) * 2);
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .user-info {
+                font-size: 0.8125rem;
             }
         }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body data-theme="{{ user.profile.theme|default:'light' }}">
-    {% if messages %}
-        <div class="container" style="padding-top: 1rem;">
-            {% for message in messages %}
-                <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <div class="top-bar">
-        <div class="top-bar-content">
+    <header class="header">
+        <div class="header-content">
             <a href="{% url 'index' %}" class="logo">Zelcry</a>
-            <div class="top-bar-right">
+            <div class="header-right">
                 {% if user.is_authenticated %}
-                <a href="{% url 'dashboard' %}" class="user-badge">
+                <a href="{% url 'dashboard' %}" class="user-info">
                     <span>{{ user.username }}</span>
                     <span class="xp-badge">{{ user.profile.xp_points }} XP</span>
                 </a>
-                <a href="{% url 'logout' %}" style="color: var(--text-secondary); text-decoration: none; font-size: 1.25rem;" title="Logout">🚪</a>
+                <a href="{% url 'logout' %}" style="color: var(--text-secondary); font-size: 1.25rem; transition: color 0.2s;" title="Logout">🚪</a>
                 {% else %}
-                <a href="{% url 'login' %}" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Login</a>
-                <a href="{% url 'signup' %}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Sign Up</a>
+                <a href="{% url 'login' %}" class="btn btn-outline" style="padding: calc(var(--spacing) * 1.25) calc(var(--spacing) * 2.5); font-size: 0.875rem;">Sign In</a>
+                <a href="{% url 'signup' %}" class="btn btn-primary" style="padding: calc(var(--spacing) * 1.25) calc(var(--spacing) * 2.5); font-size: 0.875rem;">Get Started</a>
                 {% endif %}
-                <button class="theme-toggle">🌙</button>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
             </div>
         </div>
+    </header>
+
+    {% if messages %}
+    <div style="padding-top: calc(70px + var(--spacing) * 3);">
+        <div class="container">
+            {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+                <span>{% if message.tags == 'success' %}✓{% else %}⚠{% endif %}</span>
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+        </div>
     </div>
+    {% endif %}
 
-    {% block content %}{% endblock %}
+    <main class="content-area">
+        {% block content %}{% endblock %}
+    </main>
 
-    <nav class="nav-bottom">
-        {% if user.is_authenticated %}
-        <a href="{% url 'dashboard' %}" class="nav-item {% if 'dashboard' in request.path %}active{% endif %}">
-            <span class="nav-icon">📊</span>
-            <span>Portfolio</span>
-        </a>
-        <a href="{% url 'cryptocurrencies' %}" class="nav-item {% if 'cryptocurrencies' in request.path %}active{% endif %}">
-            <span class="nav-icon">💰</span>
-            <span>Cryptos</span>
-        </a>
-        <a href="{% url 'ai_advisor' %}" class="nav-item {% if 'ai' in request.path %}active{% endif %}">
-            <span class="nav-icon">🤖</span>
-            <span>Zelcry AI</span>
-        </a>
-        <a href="{% url 'watchlist' %}" class="nav-item {% if 'watchlist' in request.path %}active{% endif %}">
-            <span class="nav-icon">⭐</span>
-            <span>Watchlist</span>
-        </a>
-        <a href="{% url 'price_alerts' %}" class="nav-item {% if 'alert' in request.path %}active{% endif %}">
-            <span class="nav-icon">🔔</span>
-            <span>Alerts</span>
-        </a>
-        {% else %}
-        <a href="{% url 'index' %}" class="nav-item {% if request.path == '/' %}active{% endif %}">
-            <span class="nav-icon">🏠</span>
-            <span>Home</span>
-        </a>
-        <a href="{% url 'cryptocurrencies' %}" class="nav-item {% if 'cryptocurrencies' in request.path %}active{% endif %}">
-            <span class="nav-icon">💰</span>
-            <span>Cryptos</span>
-        </a>
-        <a href="{% url 'news' %}" class="nav-item {% if 'news' in request.path %}active{% endif %}">
-            <span class="nav-icon">📰</span>
-            <span>News</span>
-        </a>
-        <a href="{% url 'ai_advisor' %}" class="nav-item {% if 'ai' in request.path %}active{% endif %}">
-            <span class="nav-icon">🤖</span>
-            <span>Zelcry AI</span>
-        </a>
-        {% endif %}
+    {% if user.is_authenticated or request.path == '/' %}
+    <nav class="bottom-nav">
+        <div class="bottom-nav-content">
+            {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}" class="nav-item {% if 'dashboard' in request.path %}active{% endif %}">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Portfolio</span>
+            </a>
+            <a href="{% url 'cryptocurrencies' %}" class="nav-item {% if 'cryptocurrencies' in request.path %}active{% endif %}">
+                <span class="nav-icon">💰</span>
+                <span class="nav-label">Cryptos</span>
+            </a>
+            <a href="{% url 'ai_advisor' %}" class="nav-item {% if 'ai' in request.path %}active{% endif %}">
+                <span class="nav-icon">🤖</span>
+                <span class="nav-label">AI Advisor</span>
+            </a>
+            <a href="{% url 'watchlist' %}" class="nav-item {% if 'watchlist' in request.path %}active{% endif %}">
+                <span class="nav-icon">⭐</span>
+                <span class="nav-label">Watchlist</span>
+            </a>
+            <a href="{% url 'news' %}" class="nav-item {% if 'news' in request.path %}active{% endif %}">
+                <span class="nav-icon">📰</span>
+                <span class="nav-label">News</span>
+            </a>
+            {% else %}
+            <a href="{% url 'index' %}" class="nav-item {% if request.path == '/' %}active{% endif %}">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Home</span>
+            </a>
+            <a href="{% url 'cryptocurrencies' %}" class="nav-item {% if 'cryptocurrencies' in request.path %}active{% endif %}">
+                <span class="nav-icon">💰</span>
+                <span class="nav-label">Cryptos</span>
+            </a>
+            <a href="{% url 'news' %}" class="nav-item {% if 'news' in request.path %}active{% endif %}">
+                <span class="nav-icon">📰</span>
+                <span class="nav-label">News</span>
+            </a>
+            <a href="{% url 'ai_advisor' %}" class="nav-item {% if 'ai' in request.path %}active{% endif %}">
+                <span class="nav-icon">🤖</span>
+                <span class="nav-label">Try AI</span>
+            </a>
+            {% endif %}
+        </div>
     </nav>
+    {% endif %}
 
     <script>
-        const themeToggle = document.querySelector('.theme-toggle');
+        const themeToggle = document.getElementById('themeToggle');
         const savedTheme = localStorage.getItem('theme') || '{{ user.profile.theme|default:"light" }}';
         document.documentElement.setAttribute('data-theme', savedTheme);
-        
+
         if (themeToggle) {
             themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-            
+
             themeToggle.addEventListener('click', async () => {
                 const currentTheme = document.documentElement.getAttribute('data-theme');
                 const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                
+
                 document.documentElement.setAttribute('data-theme', newTheme);
                 localStorage.setItem('theme', newTheme);
                 themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-                
+
                 {% if user.is_authenticated %}
                 try {
                     await fetch('/toggle-theme/', {
